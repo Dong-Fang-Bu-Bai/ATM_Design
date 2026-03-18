@@ -1,0 +1,715 @@
+openapi: 3.0.3
+info:
+  title: ATM System API
+  version: 1.0.0
+  description: |
+    ATM 虚拟系统接口文档。
+    用于课程作业中的 ATM 登录、查询余额、取款、存款、转账、修改密码、交易流水与凭条查询。
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+
+tags:
+  - name: Auth
+    description: 认证与会话接口
+  - name: Account
+    description: 账户信息接口
+  - name: Transaction
+    description: 交易接口
+  - name: Receipt
+    description: 凭条接口
+  - name: Device
+    description: ATM 设备接口
+
+paths:
+  /api/atm/auth/login:
+    post:
+      tags: [Auth]
+      summary: 插卡登录
+      description: 使用卡号和密码进行身份验证，成功后返回 ATM 会话信息。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: 密码错误或卡状态异常
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/auth/logout:
+    post:
+      tags: [Auth]
+      summary: 退卡退出
+      description: 结束当前 ATM 会话。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionRequest'
+      responses:
+        '200':
+          description: 退出成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/auth/change-password:
+    post:
+      tags: [Auth]
+      summary: 修改密码
+      description: 修改当前银行卡登录密码。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: 修改成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: 原密码错误或会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/accounts/balance:
+    get:
+      tags: [Account]
+      summary: 查询余额
+      description: 查询当前会话绑定账户的余额。
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BalanceResponse'
+        '401':
+          description: 会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/accounts/profile:
+    get:
+      tags: [Account]
+      summary: 查询账户信息
+      description: 查询当前登录账户的基础信息。
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountProfileResponse'
+        '401':
+          description: 会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/transactions/withdraw:
+    post:
+      tags: [Transaction]
+      summary: 取款
+      description: 发起取款交易，成功后返回交易编号和余额信息。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawRequest'
+      responses:
+        '200':
+          description: 取款成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '403':
+          description: 余额不足或 ATM 现金不足
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/transactions/deposit:
+    post:
+      tags: [Transaction]
+      summary: 存款
+      description: 发起存款交易。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepositRequest'
+      responses:
+        '200':
+          description: 存款成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '401':
+          description: 会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/transactions/transfer:
+    post:
+      tags: [Transaction]
+      summary: 转账
+      description: 发起转账交易。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '200':
+          description: 转账成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '403':
+          description: 余额不足
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 目标账户不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/transactions/{transactionId}:
+    get:
+      tags: [Transaction]
+      summary: 查询交易详情
+      description: 根据交易编号查询单笔交易详情。
+      parameters:
+        - $ref: '#/components/parameters/TransactionId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionDetailResponse'
+        '404':
+          description: 交易不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/transactions/history:
+    get:
+      tags: [Transaction]
+      summary: 查询交易流水
+      description: 分页查询当前账户的交易流水。
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            example: 10
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionHistoryResponse'
+        '401':
+          description: 会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/receipts/{transactionId}:
+    get:
+      tags: [Receipt]
+      summary: 查询交易凭条
+      description: 根据交易编号获取凭条信息。
+      parameters:
+        - $ref: '#/components/parameters/TransactionId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReceiptResponse'
+        '404':
+          description: 凭条不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/device/status:
+    get:
+      tags: [Device]
+      summary: 查询 ATM 设备状态
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeviceStatusResponse'
+
+  /api/atm/device/cash-check:
+    post:
+      tags: [Device]
+      summary: 检查 ATM 吐钞能力
+      description: 用于在取款前判断设备现金是否充足。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [amount]
+              properties:
+                amount:
+                  type: number
+                  format: double
+                  example: 1000
+      responses:
+        '200':
+          description: 检查完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashCheckResponse'
+
+components:
+  parameters:
+    SessionId:
+      name: sessionId
+      in: query
+      required: true
+      description: ATM 会话 ID
+      schema:
+        type: string
+        example: atm_session_xxx
+    TransactionId:
+      name: transactionId
+      in: path
+      required: true
+      description: 交易编号
+      schema:
+        type: string
+        example: TX202603010001
+
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          nullable: true
+
+    LoginRequest:
+      type: object
+      required: [cardNo, password]
+      properties:
+        cardNo:
+          type: string
+          example: 6222020000000001
+        password:
+          type: string
+          example: 123456
+
+    SessionRequest:
+      type: object
+      required: [sessionId]
+      properties:
+        sessionId:
+          type: string
+          example: atm_session_xxx
+
+    ChangePasswordRequest:
+      type: object
+      required: [sessionId, oldPassword, newPassword]
+      properties:
+        sessionId:
+          type: string
+          example: atm_session_xxx
+        oldPassword:
+          type: string
+          example: 123456
+        newPassword:
+          type: string
+          example: 654321
+
+    LoginData:
+      type: object
+      properties:
+        sessionId:
+          type: string
+          example: atm_session_xxx
+        customerName:
+          type: string
+          example: 张三
+        accountNo:
+          type: string
+          example: ACC10001
+
+    LoginResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 登录成功
+        data:
+          $ref: '#/components/schemas/LoginData'
+
+    BalanceData:
+      type: object
+      properties:
+        accountNo:
+          type: string
+          example: ACC10001
+        balance:
+          type: number
+          format: double
+          example: 5000.00
+
+    BalanceResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 查询成功
+        data:
+          $ref: '#/components/schemas/BalanceData'
+
+    AccountProfileData:
+      type: object
+      properties:
+        customerName:
+          type: string
+          example: 张三
+        cardNo:
+          type: string
+          example: 6222020000000001
+        accountNo:
+          type: string
+          example: ACC10001
+        accountType:
+          type: string
+          example: SAVING
+        accountStatus:
+          type: string
+          example: NORMAL
+
+    AccountProfileResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 查询成功
+        data:
+          $ref: '#/components/schemas/AccountProfileData'
+
+    WithdrawRequest:
+      type: object
+      required: [sessionId, amount, printReceipt]
+      properties:
+        sessionId:
+          type: string
+          example: atm_session_xxx
+        amount:
+          type: number
+          format: double
+          example: 1000
+        printReceipt:
+          type: boolean
+          example: true
+
+    DepositRequest:
+      type: object
+      required: [sessionId, amount, printReceipt]
+      properties:
+        sessionId:
+          type: string
+          example: atm_session_xxx
+        amount:
+          type: number
+          format: double
+          example: 2000
+        printReceipt:
+          type: boolean
+          example: true
+
+    TransferRequest:
+      type: object
+      required: [sessionId, targetAccountNo, amount, printReceipt]
+      properties:
+        sessionId:
+          type: string
+          example: atm_session_xxx
+        targetAccountNo:
+          type: string
+          example: ACC20001
+        amount:
+          type: number
+          format: double
+          example: 800
+        printReceipt:
+          type: boolean
+          example: true
+
+    TransactionData:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: TX202603010001
+        transactionType:
+          type: string
+          example: WITHDRAW
+        amount:
+          type: number
+          format: double
+          example: 1000
+        balanceAfter:
+          type: number
+          format: double
+          example: 4000
+        printReceipt:
+          type: boolean
+          example: true
+        transactionStatus:
+          type: string
+          example: SUCCESS
+        transactionTime:
+          type: string
+          format: date-time
+          example: 2026-03-01T10:20:30
+
+    TransactionResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 交易成功
+        data:
+          $ref: '#/components/schemas/TransactionData'
+
+    TransactionDetailResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 查询成功
+        data:
+          $ref: '#/components/schemas/TransactionData'
+
+    TransactionHistoryItem:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: TX202603010001
+        transactionType:
+          type: string
+          example: WITHDRAW
+        amount:
+          type: number
+          format: double
+          example: 1000
+        transactionStatus:
+          type: string
+          example: SUCCESS
+        transactionTime:
+          type: string
+          format: date-time
+          example: 2026-03-01T10:20:30
+
+    TransactionHistoryData:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        size:
+          type: integer
+          example: 10
+        total:
+          type: integer
+          example: 25
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/TransactionHistoryItem'
+
+    TransactionHistoryResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 查询成功
+        data:
+          $ref: '#/components/schemas/TransactionHistoryData'
+
+    ReceiptData:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: TX202603010001
+        type:
+          type: string
+          example: WITHDRAW
+        amount:
+          type: number
+          format: double
+          example: 1000
+        balanceAfter:
+          type: number
+          format: double
+          example: 4000
+        time:
+          type: string
+          format: date-time
+          example: 2026-03-01T10:20:30
+        accountNo:
+          type: string
+          example: ACC10001
+
+    ReceiptResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 获取成功
+        data:
+          $ref: '#/components/schemas/ReceiptData'
+
+    DeviceStatusData:
+      type: object
+      properties:
+        atmCode:
+          type: string
+          example: ATM001
+        location:
+          type: string
+          example: 一号教学楼大厅
+        status:
+          type: string
+          example: RUNNING
+        cashAvailable:
+          type: number
+          format: double
+          example: 30000
+
+    DeviceStatusResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 查询成功
+        data:
+          $ref: '#/components/schemas/DeviceStatusData'
+
+    CashCheckData:
+      type: object
+      properties:
+        available:
+          type: boolean
+          example: true
+        amount:
+          type: number
+          format: double
+          example: 1000
+        cashAvailable:
+          type: number
+          format: double
+          example: 30000
+
+    CashCheckResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 检查成功
+        data:
+          $ref: '#/components/schemas/CashCheckData'
