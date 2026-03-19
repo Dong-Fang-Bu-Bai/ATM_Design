@@ -1,0 +1,27 @@
+# 服务器配置
+server:
+  port: 8080  # 端口号
+  servlet:
+    context-path: /api/atm  # 接口前缀
+
+# 数据库配置（核心！必须和本地MySQL一致）
+spring:
+  datasource:
+    # 数据库连接地址（atm_db是你要创建的库名）
+    url: jdbc:mysql://localhost:3306/atm_db?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8&allowMultiQueries=true
+    username: root  # MySQL默认用户名，一般不用改
+    password: proTein711226  # 改成你自己的（比如123456）
+    driver-class-name: com.mysql.cj.jdbc.Driver  # MySQL 8.x驱动类
+
+# MyBatis配置（消除之前的Mapper扫描警告）
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true  # 下划线转驼峰
+  mapper-locations: classpath:mybatis/mapper/*.xml  # Mapper文件路径
+  type-aliases-package: com.atm.atmserver.entity  # 实体类别名包
+
+# 日志配置
+logging:
+  level:
+    com.atm.atmserver: debug
+    org.springframework: warn
