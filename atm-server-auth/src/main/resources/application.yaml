@@ -1,0 +1,32 @@
+# 服务器配置
+server:
+  port: 8080  # 端口号
+  servlet:
+    context-path: /api/atm  # 接口前缀
+
+# 数据库配置（核心！必须和本地MySQL一致）
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/atm_db?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8
+    username: root
+    # 这里不写死密码，而是从系统环境变量中读取
+    #选中刚创建的 Application 配置，在右侧找到 Environment variables 输入框（或点击后面的 ... 按钮）。
+    #点击 + 号，添加：
+    #Name: DB_PASSWORD
+    #Value: 你的本地 MySQL 密码（比如 123456）
+    #点击 OK → Apply → OK 保存配置。
+    password: ${DB_PASSWORD:}
+    # 格式解释：${DB_PASSWORD:} 表示读取系统环境变量 DB_PASSWORD，如果没设置则为空
+
+# MyBatis配置（消除之前的Mapper扫描警告）
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true  # 下划线转驼峰
+  mapper-locations: classpath:mybatis/mapper/*.xml  # Mapper文件路径
+  type-aliases-package: com.atm.atmserver.entity  # 实体类别名包
+
+# 日志配置
+logging:
+  level:
+    com.atm.atmserver: debug
+    org.springframework: warn
