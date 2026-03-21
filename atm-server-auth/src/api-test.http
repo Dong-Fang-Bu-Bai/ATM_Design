@@ -1,0 +1,8 @@
+### 登录接口
+POST http://localhost:8080/api/atm/auth/login
+Content-Type: application/json
+
+{
+  "cardNo": "6222020000000001",
+  "password": "123456"
+}
