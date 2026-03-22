@@ -10,8 +10,10 @@ import java.util.UUID;
  */
 @Component // 交给 Spring 管理，可注入到其他类
 public class TokenManager {
-    // 存储 Token -> 卡号（key=Token，value=银行卡号）
-    private static final Map<String, String> TOKEN_STORE = new HashMap<>();
+    // 存储：Token -> 卡号
+    private static final Map<String, String> TOKEN_TO_CARD = new HashMap<>();
+    // 新增：卡号 -> Token（快速根据卡号查旧 Token）
+    private static final Map<String, String> CARD_TO_TOKEN = new HashMap<>();
 
     /**
      * 生成 Token（登录时调用）
@@ -19,10 +21,17 @@ public class TokenManager {
      * @return 唯一 Token 字符串
      */
     public String generateToken(String cardNo) {
-        // 生成 UUID 作为 Token（去掉横线，更简洁）
-        String token = UUID.randomUUID().toString().replace("-", "");
-        TOKEN_STORE.put(token, cardNo); // 存储 Token 和卡号的关联
-        return token;
+        // 1. 先删除该卡号关联的旧 Token
+        if (CARD_TO_TOKEN.containsKey(cardNo)) {
+            String oldToken = CARD_TO_TOKEN.get(cardNo);
+            TOKEN_TO_CARD.remove(oldToken); // 从 Token 映射中删除旧 Token
+        }
+        // 2. 生成新 Token
+        String newToken = UUID.randomUUID().toString().replace("-", "");
+        // 3. 更新双向映射
+        TOKEN_TO_CARD.put(newToken, cardNo);
+        CARD_TO_TOKEN.put(cardNo, newToken);
+        return newToken;
     }
 
     /**
@@ -31,7 +40,7 @@ public class TokenManager {
      * @return true=有效，false=无效/已过期
      */
     public boolean isValidToken(String token) {
-        return TOKEN_STORE.containsKey(token);
+        return TOKEN_TO_CARD.containsKey(token);
     }
 
     /**
@@ -39,7 +48,12 @@ public class TokenManager {
      * @param token 登录返回的 Token
      */
     public void logout(String token) {
-        TOKEN_STORE.remove(token); // 从内存中删除 Token，后续无法使用
+        if (TOKEN_TO_CARD.containsKey(token)) {
+            String cardNo = TOKEN_TO_CARD.get(token);
+            // 双向删除，保证映射一致
+            TOKEN_TO_CARD.remove(token);
+            CARD_TO_TOKEN.remove(cardNo);
+        }
     }
 
     /**
@@ -48,6 +62,7 @@ public class TokenManager {
      * @return 银行卡号
      */
     public String getCardNoByToken(String token) {
-        return TOKEN_STORE.get(token);
+        return TOKEN_TO_CARD.get(token);
     }
 }
+
