@@ -1,5 +1,6 @@
 package com.atm.atmserver.dto;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 
 /**
@@ -7,5 +8,6 @@ import lombok.Data;
  */
 @Data // Lombok 自动生成 getter/setter
 public class LogoutRequest {
+    @JsonAlias("sessionId")
     private String token; // 登录时返回的 Token
 }

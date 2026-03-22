@@ -19,10 +19,10 @@ export async function login(payload) {
 
 export async function logout(sessionId) {
   if (useMock) {
-    return mockLogout()
+    return mockLogout(sessionId)
   }
 
-  const { data } = await http.post('/api/atm/auth/logout', { sessionId })
+  const { data } = await http.post('/api/atm/auth/logout', { token: sessionId })
   return data
 }
 
@@ -31,8 +31,8 @@ export async function getBalance(sessionId) {
     return mockGetBalance(sessionId)
   }
 
-  const { data } = await http.get('/api/atm/accounts/balance', {
-    params: { sessionId }
+  const { data } = await http.get('/api/atm/account/balance', {
+    params: { token: sessionId }
   })
   return data
 }
@@ -42,8 +42,8 @@ export async function getProfile(sessionId) {
     return mockGetProfile(sessionId)
   }
 
-  const { data } = await http.get('/api/atm/accounts/profile', {
-    params: { sessionId }
+  const { data } = await http.get('/api/atm/account/info', {
+    params: { token: sessionId }
   })
   return data
 }

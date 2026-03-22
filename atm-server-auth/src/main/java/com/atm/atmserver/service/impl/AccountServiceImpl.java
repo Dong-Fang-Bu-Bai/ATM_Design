@@ -1,5 +1,6 @@
 package com.atm.atmserver.service.impl;
 
+import com.atm.atmserver.common.ApiException;
 import com.atm.atmserver.dto.AccountInfoResponse;
 import com.atm.atmserver.entity.Account;
 import com.atm.atmserver.entity.BankCard;
@@ -9,6 +10,7 @@ import com.atm.atmserver.mapper.BankCardMapper;
 import com.atm.atmserver.mapper.CustomerMapper;
 import com.atm.atmserver.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -32,19 +34,19 @@ public class AccountServiceImpl implements AccountService {
         // 1. 根据卡号查询银行卡（获取关联的账户ID）
         BankCard bankCard = bankCardMapper.selectByCardNo(cardNo);
         if (bankCard == null) {
-            throw new RuntimeException("卡号不存在");
+            throw new ApiException(HttpStatus.NOT_FOUND, "卡号不存在");
         }
 
         // 2. 根据账户ID查询账户信息
         Account account = accountMapper.selectById(bankCard.getAccountId());
         if (account == null) {
-            throw new RuntimeException("账户信息不存在");
+            throw new ApiException(HttpStatus.NOT_FOUND, "账户信息不存在");
         }
 
         // 3. 根据客户ID查询客户信息
         Customer customer = customerMapper.selectById(account.getCustomerId());
         if (customer == null) {
-            throw new RuntimeException("客户信息不存在");
+            throw new ApiException(HttpStatus.NOT_FOUND, "客户信息不存在");
         }
 
         // 4. 封装响应DTO（整合所有信息）
@@ -67,12 +69,12 @@ public class AccountServiceImpl implements AccountService {
         // 1. 查询银行卡
         BankCard bankCard = bankCardMapper.selectByCardNo(cardNo);
         if (bankCard == null) {
-            throw new RuntimeException("卡号不存在");
+            throw new ApiException(HttpStatus.NOT_FOUND, "卡号不存在");
         }
         // 2. 查询账户余额
         Account account = accountMapper.selectById(bankCard.getAccountId());
         if (account == null) {
-            throw new RuntimeException("账户不存在");
+            throw new ApiException(HttpStatus.NOT_FOUND, "账户不存在");
         }
         return account.getBalance();
     }

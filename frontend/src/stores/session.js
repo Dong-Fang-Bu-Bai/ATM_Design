@@ -57,13 +57,17 @@ export const useSessionStore = defineStore('session', {
       )
     },
     setSession(data) {
-      this.sessionId = data.sessionId
-      this.customerName = data.customerName
-      this.accountNo = data.accountNo
+      this.sessionId = data.sessionId || ''
+      this.customerName = data.customerName || ''
+      this.accountNo = data.accountNo || ''
+      this.profile = null
+      this.balance = null
       this.persist()
     },
     setProfile(profile) {
       this.profile = profile
+      this.customerName = profile?.customerName || this.customerName
+      this.accountNo = profile?.accountNo || this.accountNo
       this.persist()
     },
     setBalance(balance) {

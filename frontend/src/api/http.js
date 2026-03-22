@@ -6,7 +6,20 @@ const http = axios.create({
 })
 
 http.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    const payload = response.data
+
+    if (payload && typeof payload === 'object' && 'code' in payload && payload.code !== 200) {
+      const error = new Error(payload.message || '请求失败，请稍后重试')
+      error.response = {
+        ...response,
+        data: payload
+      }
+      return Promise.reject(error)
+    }
+
+    return response
+  },
   (error) => Promise.reject(error)
 )
 

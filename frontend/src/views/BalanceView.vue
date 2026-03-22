@@ -41,7 +41,7 @@ onMounted(() => {
   <AtmLayout
     eyebrow="Account Balance"
     title="账户余额"
-    subtitle="该页面已接入 GET /api/atm/accounts/balance，支持重复刷新与主菜单回退。"
+    subtitle="该页面已接入 GET /api/atm/account/balance，支持重复刷新与主菜单回退。"
   >
     <template #display>
       <div class="display-stack">

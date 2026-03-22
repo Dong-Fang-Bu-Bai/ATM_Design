@@ -2,10 +2,11 @@ const MOCK_ACCOUNT = {
   cardNo: '6222020000000001',
   password: '123456',
   sessionId: 'atm_session_demo_001',
+  accountId: 10001,
   customerName: '张三',
   accountNo: 'ACC10001',
-  accountType: 'SAVING',
-  accountStatus: 'NORMAL',
+  accountType: '储蓄卡',
+  idCard: '110101********1234',
   balance: 5000
 }
 
@@ -41,8 +42,7 @@ export async function mockLogin(payload) {
     message: '登录成功',
     data: {
       sessionId: MOCK_ACCOUNT.sessionId,
-      customerName: MOCK_ACCOUNT.customerName,
-      accountNo: MOCK_ACCOUNT.accountNo
+      accountId: MOCK_ACCOUNT.accountId
     }
   }
 }
@@ -68,7 +68,6 @@ export async function mockGetBalance(sessionId) {
     code: 200,
     message: '查询成功',
     data: {
-      accountNo: MOCK_ACCOUNT.accountNo,
       balance: MOCK_ACCOUNT.balance
     }
   }
@@ -87,9 +86,10 @@ export async function mockGetProfile(sessionId) {
     data: {
       customerName: MOCK_ACCOUNT.customerName,
       cardNo: MOCK_ACCOUNT.cardNo,
+      idCard: MOCK_ACCOUNT.idCard,
       accountNo: MOCK_ACCOUNT.accountNo,
       accountType: MOCK_ACCOUNT.accountType,
-      accountStatus: MOCK_ACCOUNT.accountStatus
+      balance: MOCK_ACCOUNT.balance
     }
   }
 }

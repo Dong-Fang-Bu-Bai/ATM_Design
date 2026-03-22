@@ -7,22 +7,22 @@ Content-Type: application/json
   "password": "123456"
 }
 
-### 2. 账户信息查询接口
-GET http://localhost:8080/api/atm/account/info?cardNo=6222020000000001
+### 2. 账户信息查询接口（新接口）
+GET http://localhost:8080/api/atm/account/info?token=REPLACE_WITH_SESSION_ID
 
-### 利用token访问
-GET http://localhost:8080/api/atm/account/info?token=97639d64e60f45d3aab9f920c3d31b9c
+### 2.1 账户信息查询接口（兼容旧前端）
+GET http://localhost:8080/api/atm/accounts/profile?sessionId=REPLACE_WITH_SESSION_ID
 
-### 3. 余额查询接口
-GET http://localhost:8080/api/atm/account/balance?cardNo=6222020000000001
+### 3. 余额查询接口（新接口）
+GET http://localhost:8080/api/atm/account/balance?token=REPLACE_WITH_SESSION_ID
 
-### 利用token访问
-GET http://localhost:8080/api/atm/account/balance?token=509320ba86834b6ea87f2f0eef6c84a8
+### 3.1 余额查询接口（兼容旧前端）
+GET http://localhost:8080/api/atm/accounts/balance?sessionId=REPLACE_WITH_SESSION_ID
 
-### 4. 退出登录接口（替换 Token 为登录返回的 sessionId）+验证 Token 失效
+### 4. 退出登录接口（兼容 token / sessionId）
 POST http://localhost:8080/api/atm/auth/logout
 Content-Type: application/json
 
 {
-  "token": "55367fa895504891b4f2555f041c191b"
+  "token": "REPLACE_WITH_SESSION_ID"
 }

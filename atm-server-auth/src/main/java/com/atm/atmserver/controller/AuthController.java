@@ -32,11 +32,7 @@ public class AuthController {
     // 退出登录接口
     @PostMapping("/logout")
     public Result<Void> logout(@RequestBody LogoutRequest request) {
-        try {
-            authService.logout(request.getToken());
-            return Result.success(null);
-        } catch (RuntimeException e) {
-            return Result.error(e.getMessage()); // 返回错误提示
-        }
+        authService.logout(request.getToken());
+        return Result.success(null);
     }
 }
