@@ -29,3 +29,7 @@ atm-server-auth/target/
 
 # Local exported files
 /第一次迭代TODO清单.pdf
+
+# DOCX
+*.docx
+*.doc

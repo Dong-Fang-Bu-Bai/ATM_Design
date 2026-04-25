@@ -17,3 +17,46 @@ UML实验小组
 6.	到 GitHub 网页上开 Pull Request。
 7.	组长或队友审核后再 merge。
 8.	其他人 pull，拿到最新版本。
+
+## 本地完整运行
+
+Windows 下可以直接双击或在 PowerShell 执行：
+
+```powershell
+.\start-dev.cmd
+```
+
+脚本会启动两个窗口：
+
+- 后端：`http://localhost:8080/api/atm`，使用 `dev` 内存数据库并自动初始化演示账号
+- 前端：`http://localhost:5173`
+
+演示账号：
+
+- 卡号：`6222020000000001`
+- 密码：`123456`
+
+如果手动启动，先开后端：
+
+```powershell
+cd .\atm-server-auth
+.\mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev
+```
+
+再开一个终端启动前端：
+
+```powershell
+cd .\frontend
+npm install
+npm run dev:real
+```
+
+前端开发服务会通过 Vite proxy 把 `/api/atm/**` 转发到 `http://localhost:8080`，浏览器里只需要打开 `http://localhost:5173`。
+
+只体验前端 Mock 流程可以运行：
+
+```powershell
+cd .\frontend
+npm install
+npm run dev:mock
+```
