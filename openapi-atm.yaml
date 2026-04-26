@@ -151,9 +151,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionResponse'
+                $ref: '#/components/schemas/WithdrawResponse'
         '403':
           description: 余额不足或 ATM 现金不足
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '501':
+          description: 第一次迭代仅接入交易模块骨架，完整业务待第二次迭代实现
           content:
             application/json:
               schema:
@@ -176,9 +182,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionResponse'
+                $ref: '#/components/schemas/DepositResponse'
         '401':
           description: 会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '501':
+          description: 第一次迭代仅接入交易模块骨架，完整业务待第二次迭代实现
           content:
             application/json:
               schema:
@@ -201,7 +213,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionResponse'
+                $ref: '#/components/schemas/TransferResponse'
         '403':
           description: 余额不足
           content:
@@ -210,6 +222,12 @@ paths:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
           description: 目标账户不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '501':
+          description: 第一次迭代仅接入交易模块骨架，完整业务待第二次迭代实现
           content:
             application/json:
               schema:
@@ -231,6 +249,12 @@ paths:
                 $ref: '#/components/schemas/TransactionDetailResponse'
         '404':
           description: 交易不存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '501':
+          description: 第一次迭代仅接入交易模块骨架，完整业务待第二次迭代实现
           content:
             application/json:
               schema:
@@ -398,12 +422,10 @@ components:
         sessionId:
           type: string
           example: atm_session_xxx
-        customerName:
-          type: string
-          example: 张三
-        accountNo:
-          type: string
-          example: ACC10001
+        accountId:
+          type: integer
+          format: int64
+          example: 10001
 
     LoginResponse:
       type: object
@@ -420,9 +442,6 @@ components:
     BalanceData:
       type: object
       properties:
-        accountNo:
-          type: string
-          example: ACC10001
         balance:
           type: number
           format: double
@@ -449,15 +468,23 @@ components:
         cardNo:
           type: string
           example: 6222020000000001
+        idCard:
+          type: string
+          example: 110101********1234
         accountNo:
           type: string
           example: ACC10001
+        balance:
+          type: number
+          format: double
+          example: 5000.00
         accountType:
           type: string
-          example: SAVING
-        accountStatus:
+          example: 储蓄卡
+        createTime:
           type: string
-          example: NORMAL
+          format: date-time
+          example: 2026-03-01T10:20:30
 
     AccountProfileResponse:
       type: object
@@ -546,6 +573,93 @@ components:
           type: string
           format: date-time
           example: 2026-03-01T10:20:30
+
+    WithdrawData:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: TX202603010001
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 取款成功
+        remainingBalance:
+          type: number
+          format: double
+          example: 4000
+
+    WithdrawResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/WithdrawData'
+
+    DepositData:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: TX202603010002
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 存款成功
+        updatedBalance:
+          type: number
+          format: double
+          example: 7000
+
+    DepositResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/DepositData'
+
+    TransferData:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: TX202603010003
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 转账成功
+        remainingBalance:
+          type: number
+          format: double
+          example: 4200
+
+    TransferResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/TransferData'
 
     TransactionResponse:
       type: object

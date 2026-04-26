@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 
 @Data
 public class TransferResponse {
-    private String transactionNo;
+    private String transactionId;
     private Boolean success;
     private String message;
     private BigDecimal remainingBalance;

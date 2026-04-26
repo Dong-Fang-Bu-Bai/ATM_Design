@@ -7,8 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class TransactionResponse {
     private Long id;
-    private String transactionNo;
-    private String cardNo;
+    private String transactionId;
     private Integer transactionType;
     private String transactionTypeName;
     private BigDecimal amount;
@@ -17,7 +16,6 @@ public class TransactionResponse {
     private Integer transactionStatus;
     private String transactionStatusName;
     private String targetAccountNo;
-    private String targetBank;
     private String failureReason;
     private String description;
     private LocalDateTime createdAt;

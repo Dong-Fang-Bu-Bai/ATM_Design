@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS transaction_record;
 DROP TABLE IF EXISTS bank_card;
 DROP TABLE IF EXISTS account;
 DROP TABLE IF EXISTS customer;
@@ -23,4 +24,22 @@ CREATE TABLE bank_card (
   card_no VARCHAR(19) NOT NULL UNIQUE,
   password VARCHAR(6) NOT NULL,
   account_id BIGINT NOT NULL
+);
+
+CREATE TABLE transaction_record (
+  id BIGINT PRIMARY KEY,
+  transaction_id VARCHAR(32) NOT NULL UNIQUE,
+  account_id BIGINT NOT NULL,
+  card_no VARCHAR(19) NOT NULL,
+  transaction_type INT NOT NULL,
+  amount DECIMAL(15, 2) NOT NULL,
+  balance_before DECIMAL(15, 2),
+  balance_after DECIMAL(15, 2),
+  transaction_status INT NOT NULL,
+  target_account_no VARCHAR(32),
+  target_bank VARCHAR(50),
+  failure_reason VARCHAR(255),
+  description VARCHAR(255),
+  created_at TIMESTAMP NOT NULL,
+  completed_at TIMESTAMP
 );

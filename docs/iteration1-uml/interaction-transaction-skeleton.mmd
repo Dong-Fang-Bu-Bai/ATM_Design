@@ -1,0 +1,12 @@
+flowchart LR
+    PlaceholderView[交易占位页] --> FutureApi[后续交易 API]
+    FutureApi --> TransactionController
+    TransactionController --> TransactionService
+    TransactionService --> TransactionServiceImpl
+    TransactionServiceImpl --> ApiException[ApiException 501]
+    ApiException --> GlobalExceptionHandler
+    GlobalExceptionHandler --> Result[Result error payload]
+    TransactionController --> WithdrawRequest
+    TransactionController --> DepositRequest
+    TransactionController --> TransferRequest
+

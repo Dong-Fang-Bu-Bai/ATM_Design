@@ -1,0 +1,44 @@
+classDiagram
+    class AuthController {
+      +login(LoginRequest)
+      +logout(LogoutRequest)
+    }
+    class AccountController {
+      +getAccountInfo(token, sessionId)
+      +getBalance(token, sessionId)
+    }
+    class TransactionController {
+      +withdraw(WithdrawRequest)
+      +deposit(DepositRequest)
+      +transfer(TransferRequest)
+      +getTransaction(String)
+    }
+    class AuthService {
+      <<interface>>
+      +login(LoginRequest)
+      +logout(String)
+    }
+    class AccountService {
+      <<interface>>
+      +getAccountInfo(String)
+      +getBalance(String)
+    }
+    class TransactionService {
+      <<interface>>
+      +withdraw(WithdrawRequest)
+      +deposit(DepositRequest)
+      +transfer(TransferRequest)
+    }
+    class TokenManager {
+      +generateToken(String)
+      +isValidToken(String)
+      +getCardNoByToken(String)
+    }
+    AuthController --> AuthService
+    AccountController --> AccountService
+    AccountController --> TokenManager
+    TransactionController --> TransactionService
+    AuthService <|.. AuthServiceImpl
+    AccountService <|.. AccountServiceImpl
+    TransactionService <|.. TransactionServiceImpl
+

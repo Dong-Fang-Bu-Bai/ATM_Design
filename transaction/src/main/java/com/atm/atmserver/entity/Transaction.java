@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class Transaction {
     private Long id;
-    private String transactionNo;
+    private String transactionId;
     private Long accountId;
     private String cardNo;
     private Integer transactionType;

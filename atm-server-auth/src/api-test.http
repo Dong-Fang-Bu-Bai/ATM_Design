@@ -1,4 +1,4 @@
-### 1. 登录接口（获取 Token）
+### 1. 登录接口（获取 sessionId）
 POST http://localhost:8080/api/atm/auth/login
 Content-Type: application/json
 
@@ -7,22 +7,16 @@ Content-Type: application/json
   "password": "123456"
 }
 
-### 2. 账户信息查询接口（新接口）
-GET http://localhost:8080/api/atm/account/info?token=REPLACE_WITH_SESSION_ID
-
-### 2.1 账户信息查询接口（兼容旧前端）
+### 2. 账户信息查询接口
 GET http://localhost:8080/api/atm/accounts/profile?sessionId=REPLACE_WITH_SESSION_ID
 
-### 3. 余额查询接口（新接口）
-GET http://localhost:8080/api/atm/account/balance?token=REPLACE_WITH_SESSION_ID
-
-### 3.1 余额查询接口（兼容旧前端）
+### 3. 余额查询接口
 GET http://localhost:8080/api/atm/accounts/balance?sessionId=REPLACE_WITH_SESSION_ID
 
-### 4. 退出登录接口（兼容 token / sessionId）
+### 4. 退出登录接口
 POST http://localhost:8080/api/atm/auth/logout
 Content-Type: application/json
 
 {
-  "token": "REPLACE_WITH_SESSION_ID"
+  "sessionId": "REPLACE_WITH_SESSION_ID"
 }

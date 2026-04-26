@@ -57,7 +57,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void logoutAcceptsLegacySessionIdField() throws Exception {
+    void logoutAcceptsSessionIdField() throws Exception {
         mockMvc.perform(post("/auth/logout")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("""

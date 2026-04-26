@@ -1,0 +1,32 @@
+flowchart LR
+    subgraph FE[frontend]
+      V[views]
+      A[api]
+      R[router]
+      ST[stores]
+    end
+    subgraph BE[atm-server-auth]
+      C[controller]
+      S[service]
+      M[mapper]
+      E[entity]
+      D[dto/common]
+      U[util]
+    end
+    subgraph TX[transaction]
+      TC[TransactionController]
+      TS[TransactionService]
+      TD[transaction dto/entity]
+    end
+    V --> A
+    V --> R
+    V --> ST
+    A --> C
+    C --> S
+    C --> TS
+    S --> M
+    M --> E
+    TS --> TD
+    C --> D
+    S --> U
+

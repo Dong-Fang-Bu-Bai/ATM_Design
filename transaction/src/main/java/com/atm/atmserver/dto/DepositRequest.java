@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 
 @Data
 public class DepositRequest {
-    private String cardNo;
-    private BigDecimal amount;
     private String sessionId;
+    private BigDecimal amount;
+    private Boolean printReceipt;
 }

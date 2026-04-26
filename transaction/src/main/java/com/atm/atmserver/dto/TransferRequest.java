@@ -5,9 +5,8 @@ import java.math.BigDecimal;
 
 @Data
 public class TransferRequest {
-    private String cardNo;
-    private String targetAccountNo;
-    private String targetBank;
-    private BigDecimal amount;
     private String sessionId;
+    private String targetAccountNo;
+    private BigDecimal amount;
+    private Boolean printReceipt;
 }

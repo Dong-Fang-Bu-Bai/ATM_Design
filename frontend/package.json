@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:real": "vite --host 127.0.0.1 --port 5173",
-    "dev:mock": "vite --mode mock --host 127.0.0.1 --port 5174",
+    "dev:real": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "dev:mock": "vite --mode mock --host 127.0.0.1 --port 5174 --strictPort",
     "build": "vite build",
     "preview": "vite preview"
   },

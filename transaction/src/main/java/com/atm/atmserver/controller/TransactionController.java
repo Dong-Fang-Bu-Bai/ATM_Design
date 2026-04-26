@@ -10,8 +10,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/transactions")
 public class TransactionController {
 
+    private final TransactionService transactionService;
+
     @Autowired
-    private TransactionService transactionService;
+    public TransactionController(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
 
     @PostMapping("/withdraw")
     public Result<WithdrawResponse> withdraw(@RequestBody WithdrawRequest request) {
@@ -32,7 +36,7 @@ public class TransactionController {
     }
 
     @GetMapping("/{transactionId}")
-    public Result<TransactionResponse> getTransaction(@PathVariable Long transactionId) {
+    public Result<TransactionResponse> getTransaction(@PathVariable String transactionId) {
         TransactionResponse response = transactionService.getTransactionById(transactionId);
         return Result.success(response);
     }
