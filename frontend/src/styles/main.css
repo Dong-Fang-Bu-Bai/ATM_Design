@@ -242,6 +242,28 @@ textarea {
   background: rgba(255, 255, 255, 0.03) !important;
 }
 
+.result-card {
+  border-color: rgba(89, 224, 197, 0.18) !important;
+  background: rgba(255, 255, 255, 0.04) !important;
+}
+
+.result-grid {
+  display: grid;
+  grid-template-columns: minmax(88px, 0.45fr) minmax(0, 1fr);
+  gap: 10px 14px;
+  align-items: center;
+}
+
+.result-grid span {
+  color: var(--text-subtle);
+  font-size: 0.86rem;
+}
+
+.result-grid strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 .balance-meta {
   margin-top: 18px;
   display: flex;
@@ -280,6 +302,10 @@ textarea {
   background: rgba(255, 255, 255, 0.04) !important;
   box-shadow: none !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.el-input-number.full-width {
+  width: 100%;
 }
 
 .el-alert {

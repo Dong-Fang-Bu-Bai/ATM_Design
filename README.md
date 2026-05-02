@@ -29,7 +29,14 @@ Windows 下可以直接双击或在 PowerShell 执行：
 脚本会启动两个窗口：
 
 - 后端：`http://localhost:8080/api/atm`，使用 `dev` 内存数据库并自动初始化演示账号
-- 前端：`http://localhost:5173`
+- 前端真实联调：`http://127.0.0.1:5173/`
+
+前端地址统一口径：
+
+| 场景 | 命令 | 浏览器打开 |
+| --- | --- | --- |
+| 真实后端联调 | `npm run dev` 或 `npm run dev:real` | `http://127.0.0.1:5173/` |
+| 只体验前端 Mock 流程 | `npm run dev:mock` | `http://127.0.0.1:5174/` |
 
 演示账号：
 
@@ -51,7 +58,7 @@ npm install
 npm run dev:real
 ```
 
-前端开发服务会通过 Vite proxy 把 `/api/atm/**` 转发到 `http://localhost:8080`，浏览器里只需要打开 `http://localhost:5173`。
+前端真实联调服务会通过 Vite proxy 把 `/api/atm/**` 转发到 `http://localhost:8080`，浏览器里只需要打开 `http://127.0.0.1:5173/`。
 
 只体验前端 Mock 流程可以运行：
 
@@ -60,3 +67,5 @@ cd .\frontend
 npm install
 npm run dev:mock
 ```
+
+Mock 模式不依赖后端交易接口，浏览器打开 `http://127.0.0.1:5174/`。
