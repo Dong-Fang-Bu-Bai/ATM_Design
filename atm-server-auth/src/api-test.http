@@ -11,18 +11,33 @@ Content-Type: application/json
 GET http://localhost:8080/api/atm/account/info?cardNo=6222020000000001
 
 ### 利用token访问
-GET http://localhost:8080/api/atm/account/info?token=97639d64e60f45d3aab9f920c3d31b9c
+GET http://localhost:8080/api/atm/account/info?token=0e758a10a98f4a12a9168dc666188cfd
 
-### 3. 余额查询接口
+### 3. 完整账户信息查询接口（新增）
+GET http://localhost:8080/api/atm/account/full-info?token=0e758a10a98f4a12a9168dc666188cfd
+
+### 4. 余额查询接口
 GET http://localhost:8080/api/atm/account/balance?cardNo=6222020000000001
 
 ### 利用token访问
-GET http://localhost:8080/api/atm/account/balance?token=509320ba86834b6ea87f2f0eef6c84a8
+GET http://localhost:8080/api/atm/account/balance?token=0e758a10a98f4a12a9168dc666188cfd
 
-### 4. 退出登录接口（替换 Token 为登录返回的 sessionId）+验证 Token 失效
+### 5. 修改密码接口（新增）
+POST http://localhost:8080/api/atm/auth/change-password?token=324a32f0697d4c77b2f2bbc3b09362e2
+Content-Type: application/json
+
+{
+  "oldPassword": "123456",
+  "newPassword": "654321"
+}
+
+### 6. 交易前身份和账户校验接口（新增）
+GET http://localhost:8080/api/atm/account/validate-transaction?token=0e758a10a98f4a12a9168dc666188cfd
+
+### 7. 退出登录接口（替换 Token 为登录返回的 sessionId）+验证 Token 失效
 POST http://localhost:8080/api/atm/auth/logout
 Content-Type: application/json
 
 {
-  "token": "55367fa895504891b4f2555f041c191b"
+  "token": "88d9d3b19c5c40d799685a1df69ffef2"
 }

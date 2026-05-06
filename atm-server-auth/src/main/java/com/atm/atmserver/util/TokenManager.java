@@ -64,5 +64,14 @@ public class TokenManager {
     public String getCardNoByToken(String token) {
         return TOKEN_TO_CARD.get(token);
     }
+
+    /**
+     * 根据卡号获取 Token（用于修改密码等场景）
+     * @param cardNo 银行卡号
+     * @return Token
+     */
+    public String getTokenByCardNo(String cardNo) {
+        return CARD_TO_TOKEN.get(cardNo);
+    }
 }
 
