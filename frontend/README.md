@@ -40,3 +40,19 @@ Mock 演示账号：
 
 - 卡号：`6222020000000001`
 - 密码：`123456`
+
+## 接口契约
+
+前端真实联调统一使用 `sessionId` 字段，不主动发送旧字段 `token`。账户预取调用：
+
+```text
+GET /api/atm/accounts/full-info?sessionId=...
+```
+
+取款、存款、转账提交前会先调用：
+
+```text
+GET /api/atm/accounts/validate-transaction?sessionId=...
+```
+
+后端响应统一为 `code`、`message`、`data`、`timestamp`。修改密码成功后当前 `sessionId` 会失效，前端会清空本地会话并回到登录页。

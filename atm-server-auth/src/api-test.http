@@ -10,10 +10,26 @@ Content-Type: application/json
 ### 2. 账户信息查询接口
 GET http://localhost:8080/api/atm/accounts/profile?sessionId=REPLACE_WITH_SESSION_ID
 
-### 3. 余额查询接口
+### 3. 完整账户信息查询接口
+GET http://localhost:8080/api/atm/accounts/full-info?sessionId=REPLACE_WITH_SESSION_ID
+
+### 4. 余额查询接口
 GET http://localhost:8080/api/atm/accounts/balance?sessionId=REPLACE_WITH_SESSION_ID
 
-### 4. 退出登录接口
+### 5. 交易前身份和账户校验接口
+GET http://localhost:8080/api/atm/accounts/validate-transaction?sessionId=REPLACE_WITH_SESSION_ID
+
+### 6. 修改密码接口（成功后当前 sessionId 失效，需要重新登录）
+POST http://localhost:8080/api/atm/auth/change-password
+Content-Type: application/json
+
+{
+  "sessionId": "REPLACE_WITH_SESSION_ID",
+  "oldPassword": "123456",
+  "newPassword": "654321"
+}
+
+### 7. 退出登录接口
 POST http://localhost:8080/api/atm/auth/logout
 Content-Type: application/json
 

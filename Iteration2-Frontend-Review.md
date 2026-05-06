@@ -30,7 +30,7 @@
 - 优化页面交互提示和错误提示
 - 保持与 YAML 接口规范一致，便于后续后端完成后直接联调
 
-本轮只做前端，不实现后端交易业务。
+本轮最初只做前端，不实现后端交易业务；后续主干已补齐认证与账户侧第二次迭代接口，使修改密码、完整账户信息、交易前校验可以进行真实后端联调。
 
 ---
 
@@ -62,6 +62,7 @@
 - `deposit(payload)`
 - `transfer(payload)`
 - `changePassword(payload)`
+- `validateTransactionSession(sessionId)`
 
 这些方法均按 `openapi-atm.yaml` 中定义的路径调用：
 
@@ -71,6 +72,13 @@
 | 存款 | POST | `/api/atm/transactions/deposit` |
 | 转账 | POST | `/api/atm/transactions/transfer` |
 | 修改密码 | POST | `/api/atm/auth/change-password` |
+| 交易前校验 | GET | `/api/atm/accounts/validate-transaction` |
+
+账户预取已切换为更完整的账户接口：
+
+| 功能 | 方法 | 路径 |
+| --- | --- | --- |
+| 完整账户信息 | GET | `/api/atm/accounts/full-info` |
 
 ### 4.3 Mock 演示能力
 
@@ -81,6 +89,7 @@
 - 转账支持目标账户校验、余额不足提示和余额扣减
 - 修改密码支持原密码校验和新密码更新
 - 交易结果返回 `transactionId`，便于后续第三次迭代凭条页面衔接
+- Mock 成功与错误响应均包含 `timestamp`，与后端 `Result` 结构一致
 
 Mock 演示账号仍为：
 
@@ -110,11 +119,12 @@ Mock 演示账号仍为：
 | 存款 | `sessionId`, `amount`, `printReceipt` |
 | 转账 | `sessionId`, `targetAccountNo`, `amount`, `printReceipt` |
 | 修改密码 | `sessionId`, `oldPassword`, `newPassword` |
+| 交易前校验 | query 参数 `sessionId` |
 
 审查结论：
 
 - `openapi-atm.yaml` 中第二次迭代前端所需路径和字段已经完整。
-- 本轮没有必要修改 YAML 结构。
+- YAML 已补充 `/api/atm/accounts/full-info`、`/api/atm/accounts/validate-transaction` 和响应 `timestamp` 字段。
 - 已修正前端余额页文案中的旧路径，将 `/api/atm/account/balance` 统一为 `/api/atm/accounts/balance`。
 
 ---
@@ -217,8 +227,8 @@ VITE_API_BASE_URL=http://localhost:8080
 
 ### 风险与后续注意事项
 
-- 当前真实后端交易接口仍可能返回 `501 Not Implemented`，真实联调需等待后端第二次迭代交易业务完成。
-- `change-password` 接口在当前后端代码中尚未实现，前端已按 YAML 预留并实现调用。
+- 当前真实后端交易接口仍可能返回 `501 Not Implemented`，真实联调需等待交易业务实现完成。
+- `change-password`、`full-info`、`validate-transaction` 已在认证/账户后端中实现，可进行真实联调。
 - 构建存在 chunk size warning，不阻塞交付，但建议第三次迭代或最终提交前优化 Element Plus 引入方式。
 - 凭条、流水、设备状态仍属于第三次迭代范围，本轮仅保留入口或衔接字段。
 

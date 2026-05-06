@@ -3,7 +3,7 @@ import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import AtmLayout from '@/components/AtmLayout.vue'
-import { transfer } from '@/api/atm'
+import { transfer, validateTransactionSession } from '@/api/atm'
 import { getErrorMessage } from '@/api/http'
 import { useSessionStore } from '@/stores/session'
 import { formatCurrency } from '@/utils/format'
@@ -58,6 +58,7 @@ async function submit() {
   result.value = null
 
   try {
+    await validateTransactionSession(sessionStore.sessionId)
     const response = await transfer({
       sessionId: sessionStore.sessionId,
       targetAccountNo: form.targetAccountNo.trim(),

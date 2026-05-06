@@ -7,6 +7,7 @@ import {
   mockLogin,
   mockLogout,
   mockTransfer,
+  mockValidateTransactionSession,
   mockWithdraw
 } from './mock'
 
@@ -46,7 +47,18 @@ export async function getProfile(sessionId) {
     return mockGetProfile(sessionId)
   }
 
-  const { data } = await http.get('/api/atm/accounts/profile', {
+  const { data } = await http.get('/api/atm/accounts/full-info', {
+    params: { sessionId }
+  })
+  return data
+}
+
+export async function validateTransactionSession(sessionId) {
+  if (useMock) {
+    return mockValidateTransactionSession(sessionId)
+  }
+
+  const { data } = await http.get('/api/atm/accounts/validate-transaction', {
     params: { sessionId }
   })
   return data

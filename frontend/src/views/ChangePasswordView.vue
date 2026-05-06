@@ -75,6 +75,8 @@ async function submit() {
     form.confirmPassword = ''
     formRef.value.clearValidate()
     ElMessage.success(response.message || '密码修改成功')
+    sessionStore.clearSession()
+    router.push('/login')
   } catch (error) {
     ElMessage.error(getErrorMessage(error, '密码修改失败，请稍后重试'))
   } finally {

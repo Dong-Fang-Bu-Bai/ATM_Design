@@ -71,7 +71,7 @@ paths:
     post:
       tags: [Auth]
       summary: 修改密码
-      description: 修改当前银行卡登录密码。
+      description: 修改当前银行卡登录密码。请求体主字段使用 sessionId，兼容旧字段 token；修改成功后当前会话失效，需要重新登录。
       requestBody:
         required: true
         content:
@@ -84,7 +84,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
+                $ref: '#/components/schemas/ChangePasswordResponse'
         '401':
           description: 原密码错误或会话失效
           content:
@@ -127,6 +127,48 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccountProfileResponse'
+        '401':
+          description: 会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/accounts/full-info:
+    get:
+      tags: [Account]
+      summary: 查询完整账户信息
+      description: 查询当前登录账户的完整信息，包含基础账户信息、脱敏手机号和账户状态。
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullAccountProfileResponse'
+        '401':
+          description: 会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/accounts/validate-transaction:
+    get:
+      tags: [Account]
+      summary: 交易前身份和账户校验
+      description: 在取款、存款、转账前校验当前 sessionId 对应的银行卡、账户和客户信息是否可用。
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: 校验完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionValidationResponse'
         '401':
           description: 会话失效
           content:
@@ -382,6 +424,10 @@ components:
           example: success
         data:
           nullable: true
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     LoginRequest:
       type: object
@@ -416,6 +462,16 @@ components:
           type: string
           example: 654321
 
+    ChangePasswordData:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 密码修改成功，请重新登录
+
     LoginData:
       type: object
       properties:
@@ -438,6 +494,26 @@ components:
           example: 登录成功
         data:
           $ref: '#/components/schemas/LoginData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
+
+    ChangePasswordResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 密码修改成功，请重新登录
+        data:
+          $ref: '#/components/schemas/ChangePasswordData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     BalanceData:
       type: object
@@ -458,6 +534,10 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/BalanceData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     AccountProfileData:
       type: object
@@ -486,6 +566,18 @@ components:
           format: date-time
           example: 2026-03-01T10:20:30
 
+    FullAccountProfileData:
+      allOf:
+        - $ref: '#/components/schemas/AccountProfileData'
+        - type: object
+          properties:
+            phone:
+              type: string
+              example: 138****0000
+            status:
+              type: string
+              example: 正常
+
     AccountProfileResponse:
       type: object
       properties:
@@ -497,6 +589,75 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/AccountProfileData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
+
+    FullAccountProfileResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/FullAccountProfileData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
+
+    TransactionValidationData:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: true
+        cardNo:
+          type: string
+          example: 6222020000000001
+        accountId:
+          type: integer
+          format: int64
+          example: 10001
+        accountNo:
+          type: string
+          example: ACC10001
+        balance:
+          type: number
+          format: double
+          example: 5000.00
+        customerName:
+          type: string
+          example: 张三
+        message:
+          type: string
+          example: 验证通过
+        accountType:
+          type: integer
+          example: 1
+        status:
+          type: string
+          example: 正常
+
+    TransactionValidationResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/TransactionValidationData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     WithdrawRequest:
       type: object
@@ -602,6 +763,10 @@ components:
           example: success
         data:
           $ref: '#/components/schemas/WithdrawData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     DepositData:
       type: object
@@ -631,6 +796,10 @@ components:
           example: success
         data:
           $ref: '#/components/schemas/DepositData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     TransferData:
       type: object
@@ -660,6 +829,10 @@ components:
           example: success
         data:
           $ref: '#/components/schemas/TransferData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     TransactionResponse:
       type: object
@@ -672,6 +845,10 @@ components:
           example: 交易成功
         data:
           $ref: '#/components/schemas/TransactionData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     TransactionDetailResponse:
       type: object
@@ -684,6 +861,10 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/TransactionData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     TransactionHistoryItem:
       type: object
@@ -734,6 +915,10 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/TransactionHistoryData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     ReceiptData:
       type: object
@@ -771,6 +956,10 @@ components:
           example: 获取成功
         data:
           $ref: '#/components/schemas/ReceiptData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     DeviceStatusData:
       type: object
@@ -800,6 +989,10 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/DeviceStatusData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     CashCheckData:
       type: object
@@ -827,3 +1020,7 @@ components:
           example: 检查成功
         data:
           $ref: '#/components/schemas/CashCheckData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752

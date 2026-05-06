@@ -7,6 +7,9 @@ const MOCK_ACCOUNT = {
   accountNo: 'ACC10001',
   accountType: '储蓄卡',
   idCard: '110101********1234',
+  phone: '138****0000',
+  status: '正常',
+  createTime: '2026-03-01T10:20:30',
   balance: 5000
 }
 
@@ -62,11 +65,22 @@ function createApiError(message, status = 400) {
     status,
     data: {
       code: status,
-      message
+      message,
+      data: null,
+      timestamp: Date.now()
     }
   }
 
   return error
+}
+
+function createResponse(data, message = 'success', code = 200) {
+  return {
+    code,
+    message,
+    data,
+    timestamp: Date.now()
+  }
 }
 
 export async function mockLogin(payload) {
@@ -79,24 +93,23 @@ export async function mockLogin(payload) {
     throw createApiError('卡号或密码错误，请重试', 401)
   }
 
-  return {
-    code: 200,
-    message: '登录成功',
-    data: {
+  MOCK_ACCOUNT.sessionId = `atm_session_demo_${Date.now()}`
+
+  return createResponse(
+    {
       sessionId: MOCK_ACCOUNT.sessionId,
       accountId: MOCK_ACCOUNT.accountId
-    }
-  }
+    },
+    '登录成功'
+  )
 }
 
-export async function mockLogout() {
+export async function mockLogout(sessionId) {
   await sleep(240)
+  assertSession(sessionId)
+  MOCK_ACCOUNT.sessionId = ''
 
-  return {
-    code: 200,
-    message: '退卡成功',
-    data: null
-  }
+  return createResponse(null, '退卡成功')
 }
 
 export async function mockGetBalance(sessionId) {
@@ -104,13 +117,12 @@ export async function mockGetBalance(sessionId) {
 
   assertSession(sessionId)
 
-  return {
-    code: 200,
-    message: '查询成功',
-    data: {
+  return createResponse(
+    {
       balance: MOCK_ACCOUNT.balance
-    }
-  }
+    },
+    '查询成功'
+  )
 }
 
 export async function mockGetProfile(sessionId) {
@@ -118,18 +130,40 @@ export async function mockGetProfile(sessionId) {
 
   assertSession(sessionId)
 
-  return {
-    code: 200,
-    message: '查询成功',
-    data: {
+  return createResponse(
+    {
       customerName: MOCK_ACCOUNT.customerName,
       cardNo: MOCK_ACCOUNT.cardNo,
       idCard: MOCK_ACCOUNT.idCard,
+      phone: MOCK_ACCOUNT.phone,
       accountNo: MOCK_ACCOUNT.accountNo,
       accountType: MOCK_ACCOUNT.accountType,
-      balance: MOCK_ACCOUNT.balance
-    }
-  }
+      balance: MOCK_ACCOUNT.balance,
+      createTime: MOCK_ACCOUNT.createTime,
+      status: MOCK_ACCOUNT.status
+    },
+    '查询成功'
+  )
+}
+
+export async function mockValidateTransactionSession(sessionId) {
+  await sleep(260)
+  assertSession(sessionId)
+
+  return createResponse(
+    {
+      valid: true,
+      cardNo: MOCK_ACCOUNT.cardNo,
+      accountId: MOCK_ACCOUNT.accountId,
+      accountNo: MOCK_ACCOUNT.accountNo,
+      balance: MOCK_ACCOUNT.balance,
+      customerName: MOCK_ACCOUNT.customerName,
+      message: '验证通过',
+      accountType: 1,
+      status: MOCK_ACCOUNT.status
+    },
+    '验证通过'
+  )
 }
 
 export async function mockWithdraw(payload) {
@@ -148,16 +182,12 @@ export async function mockWithdraw(payload) {
 
   MOCK_ACCOUNT.balance = Number((MOCK_ACCOUNT.balance - amount).toFixed(2))
 
-  return {
-    code: 200,
-    message: 'success',
-    data: {
-      transactionId: createTransactionId(),
-      success: true,
-      message: payload.printReceipt ? '取款成功，已生成凭条请求' : '取款成功',
-      remainingBalance: MOCK_ACCOUNT.balance
-    }
-  }
+  return createResponse({
+    transactionId: createTransactionId(),
+    success: true,
+    message: payload.printReceipt ? '取款成功，已生成凭条请求' : '取款成功',
+    remainingBalance: MOCK_ACCOUNT.balance
+  })
 }
 
 export async function mockDeposit(payload) {
@@ -167,16 +197,12 @@ export async function mockDeposit(payload) {
   const amount = parseAmount(payload.amount)
   MOCK_ACCOUNT.balance = Number((MOCK_ACCOUNT.balance + amount).toFixed(2))
 
-  return {
-    code: 200,
-    message: 'success',
-    data: {
-      transactionId: createTransactionId(),
-      success: true,
-      message: payload.printReceipt ? '存款成功，已生成凭条请求' : '存款成功',
-      updatedBalance: MOCK_ACCOUNT.balance
-    }
-  }
+  return createResponse({
+    transactionId: createTransactionId(),
+    success: true,
+    message: payload.printReceipt ? '存款成功，已生成凭条请求' : '存款成功',
+    updatedBalance: MOCK_ACCOUNT.balance
+  })
 }
 
 export async function mockTransfer(payload) {
@@ -202,16 +228,12 @@ export async function mockTransfer(payload) {
 
   MOCK_ACCOUNT.balance = Number((MOCK_ACCOUNT.balance - amount).toFixed(2))
 
-  return {
-    code: 200,
-    message: 'success',
-    data: {
-      transactionId: createTransactionId(),
-      success: true,
-      message: `转账成功，收款账户：${target.accountNo}`,
-      remainingBalance: MOCK_ACCOUNT.balance
-    }
-  }
+  return createResponse({
+    transactionId: createTransactionId(),
+    success: true,
+    message: `转账成功，收款账户：${target.accountNo}`,
+    remainingBalance: MOCK_ACCOUNT.balance
+  })
 }
 
 export async function mockChangePassword(payload) {
@@ -227,11 +249,14 @@ export async function mockChangePassword(payload) {
   }
 
   MOCK_ACCOUNT.password = payload.newPassword
+  MOCK_ACCOUNT.sessionId = ''
 
-  return {
-    code: 200,
-    message: '修改成功',
-    data: null
-  }
+  return createResponse(
+    {
+      success: true,
+      message: '密码修改成功，请重新登录'
+    },
+    '密码修改成功，请重新登录'
+  )
 }
 
