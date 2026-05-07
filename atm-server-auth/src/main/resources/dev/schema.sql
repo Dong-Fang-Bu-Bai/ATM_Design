@@ -27,7 +27,7 @@ CREATE TABLE bank_card (
 );
 
 CREATE TABLE transaction_record (
-  id BIGINT PRIMARY KEY,
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
   transaction_id VARCHAR(32) NOT NULL UNIQUE,
   account_id BIGINT NOT NULL,
   card_no VARCHAR(19) NOT NULL,
