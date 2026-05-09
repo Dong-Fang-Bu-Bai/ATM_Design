@@ -1,0 +1,13 @@
+flowchart LR
+    Old[旧调用方\ntoken + /account/*]
+    New[新前端与文档\nsessionId + /accounts/*]
+    Ctrl[AccountController/AuthController\n兼容新老参数与路径]
+    Adapter[SessionValidator\n解析 sessionId 优先\ntoken 仅兼容别名]
+    Token[TokenManager\n维护会话和 cardNo 映射]
+    Service[Account/Auth/Transaction Service\n只接收统一后的 cardNo 或请求 DTO]
+    Result[Result<T>\ncode/message/data/timestamp]
+
+    Old --> Ctrl
+    New --> Ctrl
+    Ctrl --> Adapter --> Token
+    Adapter --> Service --> Result

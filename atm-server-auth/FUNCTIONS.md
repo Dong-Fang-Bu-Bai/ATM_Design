@@ -1,4 +1,4 @@
-# ATM 认证与账户服务功能说明
+# ATM 认证、账户与交易服务功能说明
 
 ## 统一口径
 
@@ -6,6 +6,9 @@
 - 兼容字段：`token`，仅用于兼容旧请求，不作为新文档和前端主字段
 - 主账户路径：`/api/atm/accounts/*`
 - 兼容账户路径：`/api/atm/account/*`
+- 交易流水对外字段：`transactionId`
+- 转账目标账户字段：`targetAccountNo`
+- 交易请求字段：取款、存款使用 `sessionId`、`amount`、`printReceipt`；转账额外使用 `targetAccountNo`
 - 统一响应：`code`、`message`、`data`、`timestamp`
 - 统一异常：业务异常通过 `ApiException` 交给 `GlobalExceptionHandler` 转换为结构化响应
 
@@ -20,6 +23,10 @@
 | 完整账户信息 | `GET` | `/api/atm/accounts/full-info?sessionId=...` | 在基础信息上补充脱敏手机号和账户状态 |
 | 查询余额 | `GET` | `/api/atm/accounts/balance?sessionId=...` | 返回结构化余额对象 `{ "balance": ... }` |
 | 交易前校验 | `GET` | `/api/atm/accounts/validate-transaction?sessionId=...` | 返回账户是否可用于取款、存款、转账 |
+| 取款 | `POST` | `/api/atm/transactions/withdraw` | 请求体传 `sessionId`、`amount`、`printReceipt`；成功后返回 `transactionId` 和剩余余额 |
+| 存款 | `POST` | `/api/atm/transactions/deposit` | 请求体传 `sessionId`、`amount`、`printReceipt`；成功后返回 `transactionId` 和更新后余额 |
+| 转账 | `POST` | `/api/atm/transactions/transfer` | 请求体传 `sessionId`、`targetAccountNo`、`amount`、`printReceipt`；成功后返回 `transactionId` 和剩余余额 |
+| 交易详情 | `GET` | `/api/atm/transactions/{transactionId}` | 根据对外交易流水号查询交易详情 |
 
 ## 与交易模块协作
 

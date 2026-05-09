@@ -74,7 +74,7 @@ Mock 模式不依赖后端交易接口，浏览器打开 `http://127.0.0.1:5174/
 
 对外主契约统一使用 `sessionId`，旧字段 `token` 仅作为后端兼容别名保留。后端所有 `Result` 响应均包含 `code`、`message`、`data`、`timestamp`。
 
-当前已接入的认证与账户接口：
+当前已接入的认证、账户与交易接口：
 
 | 功能 | 方法 | 主路径 |
 | --- | --- | --- |
@@ -85,5 +85,18 @@ Mock 模式不依赖后端交易接口，浏览器打开 `http://127.0.0.1:5174/
 | 完整账户信息 | `GET` | `/api/atm/accounts/full-info?sessionId=...` |
 | 查询余额 | `GET` | `/api/atm/accounts/balance?sessionId=...` |
 | 交易前校验 | `GET` | `/api/atm/accounts/validate-transaction?sessionId=...` |
+| 取款 | `POST` | `/api/atm/transactions/withdraw` |
+| 存款 | `POST` | `/api/atm/transactions/deposit` |
+| 转账 | `POST` | `/api/atm/transactions/transfer` |
+| 交易详情 | `GET` | `/api/atm/transactions/{transactionId}` |
+
+交易请求统一字段：
+
+| 功能 | 请求字段 |
+| --- | --- |
+| 取款 | `sessionId`, `amount`, `printReceipt` |
+| 存款 | `sessionId`, `amount`, `printReceipt` |
+| 转账 | `sessionId`, `targetAccountNo`, `amount`, `printReceipt` |
+| 交易详情 | path 参数 `transactionId` |
 
 详细字段以 `openapi-atm.yaml` 和 `atm-server-auth/src/api-test.http` 为准。

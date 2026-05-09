@@ -28,9 +28,9 @@
 - 实现修改密码页面
 - 对接认证、账户和交易接口
 - 优化页面交互提示和错误提示
-- 保持与 YAML 接口规范一致，便于后续后端完成后直接联调
+- 保持与 YAML 接口规范一致，支持前端 mock 演示和真实后端联调
 
-本轮最初只做前端，不实现后端交易业务；后续主干已补齐认证与账户侧第二次迭代接口，使修改密码、完整账户信息、交易前校验可以进行真实后端联调。
+后续主干已补齐认证、账户和交易侧第二次迭代接口，使取款、存款、转账、修改密码、完整账户信息、交易前校验可以按照统一公开契约进行真实后端联调。
 
 ---
 
@@ -80,9 +80,9 @@
 | --- | --- | --- |
 | 完整账户信息 | GET | `/api/atm/accounts/full-info` |
 
-### 4.3 Mock 演示能力
+### 4.3 Mock 与真实接口演示能力
 
-由于当前后端交易模块仍处于骨架阶段，前端 mock 已扩展为可支持第二次迭代演示：
+前端 mock 保留为无后端环境下的第二次迭代演示能力，真实联调时可切换到后端交易接口：
 
 - 取款成功后扣减余额并返回 `remainingBalance`
 - 存款成功后增加余额并返回 `updatedBalance`
@@ -125,7 +125,7 @@ Mock 演示账号仍为：
 
 - `openapi-atm.yaml` 中第二次迭代前端所需路径和字段已经完整。
 - YAML 已补充 `/api/atm/accounts/full-info`、`/api/atm/accounts/validate-transaction` 和响应 `timestamp` 字段。
-- 已修正前端余额页文案中的旧路径，将 `/api/atm/account/balance` 统一为 `/api/atm/accounts/balance`。
+- 已修正前端余额页文案中的旧账户路径，统一为 `/api/atm/accounts/balance`。
 
 ---
 
@@ -220,15 +220,16 @@ VITE_API_BASE_URL=http://localhost:8080
 - 页面入口已接入主菜单
 - 请求路径和字段已与 YAML 对齐
 - mock 模式支持取款、存款、转账、修改密码演示
+- 真实后端已支持取款、存款、转账和交易详情
 - 交易成功后能够同步余额并展示交易结果
 - 前端生产构建通过
 
-整体判断：本轮前端结果适合作为第二次迭代交付版本。
+整体判断：本轮前端结果适合作为第二次迭代交付版本，并已具备与当前后端交易实现联调的接口基础。
 
 ### 风险与后续注意事项
 
-- 当前真实后端交易接口仍可能返回 `501 Not Implemented`，真实联调需等待交易业务实现完成。
-- `change-password`、`full-info`、`validate-transaction` 已在认证/账户后端中实现，可进行真实联调。
+- 当前公开契约统一为 `sessionId`、`transactionId`、`targetAccountNo` 和 `/api/atm/accounts/*`，旧 `token` 与 `/api/atm/account/*` 仅作为后端兼容别名保留。
+- `change-password`、`full-info`、`validate-transaction`、取款、存款、转账、交易详情均可进行真实联调。
 - 构建存在 chunk size warning，不阻塞交付，但建议第三次迭代或最终提交前优化 Element Plus 引入方式。
 - 凭条、流水、设备状态仍属于第三次迭代范围，本轮仅保留入口或衔接字段。
 

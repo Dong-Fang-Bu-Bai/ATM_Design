@@ -1,0 +1,33 @@
+sequenceDiagram
+    actor Customer as 客户
+    participant View as TransferView
+    participant Api as atm.js/http.js
+    participant Ctrl as TransactionController
+    participant Proxy as Spring Transaction Proxy
+    participant Service as TransactionServiceImpl
+    participant Session as SessionValidator
+    participant Account as AccountMapper
+    participant Tx as TransactionMapper
+    participant DB as 数据库
+
+    Customer->>View: 输入目标账户和金额
+    View->>Api: transfer(sessionId,targetAccountNo,amount)
+    Api->>Ctrl: POST /api/atm/transactions/transfer
+    Ctrl->>Proxy: transactionService.transfer(request)
+    Proxy->>Service: 开启事务并调用真实服务
+    Service->>Session: validateAndGetCardNo(sessionId,null)
+    Session-->>Service: cardNo
+    Service->>Account: 查询源账户与目标账户
+    Account-->>Service: sourceAccount,targetAccount
+    Service->>Tx: sumTodayAmount(cardNo,TRANSFER)
+    Tx-->>Service: todayTransfer
+    Service->>Tx: insert(转出 PENDING 流水)
+    Service->>Account: subtractBalance(source,amount)
+    Service->>Account: addBalance(target,amount)
+    Service->>Tx: insert(转入 SUCCESS 流水)
+    Service->>Tx: updateStatus(转出 SUCCESS)
+    Service-->>Proxy: TransferResponse
+    Proxy-->>Ctrl: 提交事务
+    Ctrl-->>Api: Result.success(data)
+    Api-->>View: transactionId,remainingBalance
+    View-->>Customer: 展示转账成功

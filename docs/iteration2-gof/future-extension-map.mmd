@@ -1,0 +1,12 @@
+flowchart TD
+    Core[第二次迭代核心交易闭环]
+    Core --> Strategy[Strategy 拓展\n手续费/风控/凭条策略]
+    Core --> Command[Command 拓展\n取款/存款/转账/退卡命令统一排队和审计]
+    Core --> State[State 拓展\n待机/认证/业务选择/交易中/退卡]
+    Core --> Observer[Observer 拓展\n交易成功事件触发凭条、流水列表、设备提示]
+    Core --> Device[设备模块\n现金余量、打印机状态、异常恢复]
+    Strategy --> Iter3[细化迭代 3]
+    Command --> Iter3
+    State --> Iter3
+    Observer --> Iter3
+    Device --> Iter3

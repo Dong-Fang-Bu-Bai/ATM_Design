@@ -1,0 +1,20 @@
+flowchart TD
+    S([开始]) --> A[接收交易请求]
+    A --> B{请求体和金额合法?}
+    B -- 否 --> X[抛出 ApiException\n统一 Result 错误响应]
+    B -- 是 --> C[SessionValidator 校验 sessionId]
+    C --> D[加载银行卡与账户上下文]
+    D --> E{交易类型}
+    E --> W[取款规则\n100 整数倍/单次限额/单日限额/余额]
+    E --> P[存款规则\n正金额/单次限额]
+    E --> T[转账规则\n目标账户/自转账/余额/单日限额]
+    W --> F[创建 PENDING 交易流水]
+    P --> F
+    T --> F
+    F --> G[更新账户余额]
+    G --> H{更新成功?}
+    H -- 否 --> X
+    H -- 是 --> I[标记 SUCCESS 并写 completedAt]
+    I --> J[返回 transactionId 与最新余额]
+    X --> R([结束])
+    J --> R

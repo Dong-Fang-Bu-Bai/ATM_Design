@@ -33,3 +33,4 @@ atm-server-auth/target/
 # DOCX
 *.docx
 *.doc
+*.png
