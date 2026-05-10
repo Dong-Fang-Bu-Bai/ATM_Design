@@ -351,9 +351,10 @@ paths:
     get:
       tags: [Receipt]
       summary: 查询交易凭条
-      description: 根据交易编号获取凭条信息。
+      description: 根据交易编号和当前会话获取凭条信息。
       parameters:
         - $ref: '#/components/parameters/TransactionId'
+        - $ref: '#/components/parameters/SessionId'
       responses:
         '200':
           description: 查询成功

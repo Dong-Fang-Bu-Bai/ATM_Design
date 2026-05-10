@@ -1,9 +1,13 @@
 import http from './http'
 import {
+  mockCheckCashAvailability,
   mockChangePassword,
   mockDeposit,
+  mockGetDeviceStatus,
+  mockGetReceipt,
   mockGetBalance,
   mockGetProfile,
+  mockGetTransactionHistory,
   mockLogin,
   mockLogout,
   mockTransfer,
@@ -97,6 +101,52 @@ export async function changePassword(payload) {
   }
 
   const { data } = await http.post('/api/atm/auth/change-password', payload)
+  return data
+}
+
+export async function getTransactionHistory(sessionId, params = {}) {
+  if (useMock) {
+    return mockGetTransactionHistory(sessionId, params)
+  }
+
+  const { data } = await http.get('/api/atm/transactions/history', {
+    params: {
+      sessionId,
+      page: params.page,
+      size: params.size
+    }
+  })
+  return data
+}
+
+export async function getReceipt(transactionId, sessionId) {
+  if (useMock) {
+    return mockGetReceipt(transactionId, sessionId)
+  }
+
+  const { data } = await http.get(`/api/atm/receipts/${encodeURIComponent(transactionId)}`, {
+    params: { sessionId }
+  })
+  return data
+}
+
+export async function getDeviceStatus() {
+  if (useMock) {
+    return mockGetDeviceStatus()
+  }
+
+  const { data } = await http.get('/api/atm/device/status')
+  return data
+}
+
+export async function checkCashAvailability(payload) {
+  const body = typeof payload === 'object' ? payload : { amount: payload }
+
+  if (useMock) {
+    return mockCheckCashAvailability(body)
+  }
+
+  const { data } = await http.post('/api/atm/device/cash-check', body)
   return data
 }
 

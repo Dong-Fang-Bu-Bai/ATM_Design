@@ -3,14 +3,16 @@ import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import AtmLayout from '@/components/AtmLayout.vue'
-import { getProfile, logout } from '@/api/atm'
+import { getDeviceStatus, getProfile, logout } from '@/api/atm'
 import { getErrorMessage } from '@/api/http'
 import { useSessionStore } from '@/stores/session'
-import { maskCardNo } from '@/utils/format'
+import { formatCurrency, maskCardNo } from '@/utils/format'
 
 const router = useRouter()
 const sessionStore = useSessionStore()
 const logoutLoading = ref(false)
+const deviceStatus = ref(null)
+const deviceLoading = ref(false)
 
 const menuItems = [
   { label: '查询余额', route: '/balance', status: '本轮已交付' },
@@ -18,10 +20,20 @@ const menuItems = [
   { label: '存款', route: '/deposit', status: '第二次迭代' },
   { label: '转账', route: '/transfer', status: '第二次迭代' },
   { label: '修改密码', route: '/change-password', status: '第二次迭代' },
-  { label: '交易凭条', route: '/feature/receipt', status: '第三次迭代' }
+  { label: '交易流水', route: '/history', status: '第三次迭代' },
+  { label: '交易凭条', route: '/receipt', status: '第三次迭代' },
+  { label: '设备状态', route: '/device-status', status: '第三次迭代' }
 ]
 
 const profileCardNo = computed(() => maskCardNo(sessionStore.profile?.cardNo))
+const deviceLabel = computed(() => {
+  if (!deviceStatus.value) {
+    return '等待查询'
+  }
+
+  return deviceStatus.value.status === 'RUNNING' ? '运行正常' : deviceStatus.value.status
+})
+const cashAvailableLabel = computed(() => formatCurrency(deviceStatus.value?.cashAvailable))
 
 async function ensureProfile() {
   if (sessionStore.profile || !sessionStore.sessionId) {
@@ -33,6 +45,19 @@ async function ensureProfile() {
     sessionStore.setProfile(response.data)
   } catch (error) {
     ElMessage.warning(getErrorMessage(error, '账户信息载入失败'))
+  }
+}
+
+async function fetchDeviceStatus() {
+  deviceLoading.value = true
+
+  try {
+    const response = await getDeviceStatus()
+    deviceStatus.value = response.data
+  } catch (error) {
+    ElMessage.warning(getErrorMessage(error, '设备状态载入失败'))
+  } finally {
+    deviceLoading.value = false
   }
 }
 
@@ -56,6 +81,7 @@ async function exitSession() {
 
 onMounted(() => {
   ensureProfile()
+  fetchDeviceStatus()
 })
 </script>
 
@@ -63,7 +89,7 @@ onMounted(() => {
   <AtmLayout
     eyebrow="Main Menu"
     title="请选择业务类型"
-    subtitle="主菜单已接入第二次迭代核心交易入口，凭条与流水保留到第三次迭代。"
+    subtitle="主菜单已接入流水、凭条和设备状态入口，可用于第三次迭代完整演示。"
   >
     <template #display>
       <div class="display-stack">
@@ -79,12 +105,17 @@ onMounted(() => {
           <span class="info-label">银行卡号</span>
           <strong>{{ profileCardNo }}</strong>
         </div>
+        <div class="info-card">
+          <span class="info-label">设备状态</span>
+          <strong>{{ deviceLoading ? '查询中' : deviceLabel }}</strong>
+          <small v-if="deviceStatus">可用现金：{{ cashAvailableLabel }}</small>
+        </div>
       </div>
     </template>
 
     <div class="panel-header">
       <h2>ATM 主菜单</h2>
-      <p>余额、取款、存款、转账、修改密码已具备前端演示流程。</p>
+      <p>余额、核心交易、流水、凭条与设备状态已具备前端演示流程。</p>
     </div>
 
     <div class="menu-grid">
@@ -102,6 +133,7 @@ onMounted(() => {
 
     <div class="footer-actions">
       <el-button text @click="navigateTo('/balance')">快速查看余额</el-button>
+      <el-button text @click="navigateTo('/history')">查看流水</el-button>
       <el-button :loading="logoutLoading" @click="exitSession">退卡退出</el-button>
     </div>
   </AtmLayout>

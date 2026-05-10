@@ -8,29 +8,29 @@ const router = useRouter()
 
 const featureMap = {
   withdraw: {
-    title: '取款模块建设中',
-    stage: '第二次迭代',
+    title: '取款功能已接入',
+    stage: '第二次迭代已交付',
     api: 'POST /api/atm/transactions/withdraw'
   },
   deposit: {
-    title: '存款模块建设中',
-    stage: '第二次迭代',
+    title: '存款功能已接入',
+    stage: '第二次迭代已交付',
     api: 'POST /api/atm/transactions/deposit'
   },
   transfer: {
-    title: '转账模块建设中',
-    stage: '第二次迭代',
+    title: '转账功能已接入',
+    stage: '第二次迭代已交付',
     api: 'POST /api/atm/transactions/transfer'
   },
   'change-password': {
-    title: '修改密码模块建设中',
-    stage: '第二次迭代',
+    title: '修改密码功能已接入',
+    stage: '第二次迭代已交付',
     api: 'POST /api/atm/auth/change-password'
   },
   receipt: {
-    title: '凭条与流水模块建设中',
-    stage: '第三次迭代',
-    api: 'GET /api/atm/receipts/{transactionId}'
+    title: '凭条与流水已接入',
+    stage: '第三次迭代已交付',
+    api: 'GET /api/atm/receipts/{transactionId}；GET /api/atm/transactions/history'
   }
 }
 
@@ -47,7 +47,7 @@ const feature = computed(() => {
   <AtmLayout
     eyebrow="Coming Next"
     :title="feature.title"
-    subtitle="本页面用于承接第一次迭代尚未开发完成的交易能力，保证主菜单流程完整。"
+    subtitle="本页面用于兼容早期占位入口，正式演示请从主菜单进入对应功能。"
   >
     <template #display>
       <div class="display-stack">
@@ -63,7 +63,7 @@ const feature = computed(() => {
     </template>
 
     <div class="placeholder-body">
-      <el-empty description="当前仅保留页面入口与接口对接位" />
+      <el-empty description="当前入口已迁移至正式业务页面或保留给后续扩展" />
     </div>
 
     <div class="footer-actions">

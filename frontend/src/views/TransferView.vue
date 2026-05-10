@@ -129,6 +129,11 @@ async function submit() {
         <span>剩余余额</span>
         <strong>{{ formatCurrency(result.remainingBalance) }}</strong>
       </div>
+      <div class="result-actions">
+        <el-button type="primary" plain @click="router.push(`/receipt/${result.transactionId}`)">
+          查看凭条
+        </el-button>
+      </div>
     </el-card>
 
     <div class="footer-actions">

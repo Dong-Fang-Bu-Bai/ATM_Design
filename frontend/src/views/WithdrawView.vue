@@ -3,7 +3,7 @@ import { computed, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import AtmLayout from '@/components/AtmLayout.vue'
-import { validateTransactionSession, withdraw } from '@/api/atm'
+import { checkCashAvailability, validateTransactionSession, withdraw } from '@/api/atm'
 import { getErrorMessage } from '@/api/http'
 import { useSessionStore } from '@/stores/session'
 import { formatCurrency } from '@/utils/format'
@@ -59,6 +59,13 @@ async function submit() {
 
   try {
     await validateTransactionSession(sessionStore.sessionId)
+    const cashResponse = await checkCashAvailability(Number(form.amount))
+
+    if (!cashResponse.data?.available) {
+      ElMessage.error('ATM 设备现金不足，无法完成取款')
+      return
+    }
+
     const response = await withdraw({
       sessionId: sessionStore.sessionId,
       amount: Number(form.amount),
@@ -124,6 +131,11 @@ async function submit() {
         <strong>{{ result.message }}</strong>
         <span>剩余余额</span>
         <strong>{{ formatCurrency(result.remainingBalance) }}</strong>
+      </div>
+      <div class="result-actions">
+        <el-button type="primary" plain @click="router.push(`/receipt/${result.transactionId}`)">
+          查看凭条
+        </el-button>
       </div>
     </el-card>
 

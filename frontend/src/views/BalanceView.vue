@@ -78,6 +78,7 @@ onMounted(() => {
 
     <div class="footer-actions">
       <el-button :loading="loading" type="primary" @click="fetchBalance">刷新余额</el-button>
+      <el-button @click="router.push('/history')">查看流水</el-button>
       <el-button @click="router.push('/menu')">返回主菜单</el-button>
     </div>
   </AtmLayout>

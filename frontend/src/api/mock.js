@@ -24,7 +24,45 @@ const MOCK_TARGET_ACCOUNTS = [
   }
 ]
 
-let transactionSequence = 1
+const MOCK_DEVICE = {
+  atmCode: 'ATM001',
+  location: '一号教学楼大厅',
+  status: 'RUNNING',
+  cashAvailable: 30000
+}
+
+const MOCK_HISTORY = [
+  {
+    transactionId: 'TX202603010003',
+    transactionType: 'TRANSFER',
+    amount: 300,
+    transactionStatus: 'SUCCESS',
+    transactionTime: '2026-03-01T11:20:30',
+    balanceAfter: 5000,
+    accountNo: MOCK_ACCOUNT.accountNo,
+    targetAccountNo: 'ACC20001'
+  },
+  {
+    transactionId: 'TX202603010002',
+    transactionType: 'DEPOSIT',
+    amount: 800,
+    transactionStatus: 'SUCCESS',
+    transactionTime: '2026-03-01T10:48:12',
+    balanceAfter: 5300,
+    accountNo: MOCK_ACCOUNT.accountNo
+  },
+  {
+    transactionId: 'TX202603010001',
+    transactionType: 'WITHDRAW',
+    amount: 500,
+    transactionStatus: 'SUCCESS',
+    transactionTime: '2026-03-01T09:36:45',
+    balanceAfter: 4500,
+    accountNo: MOCK_ACCOUNT.accountNo
+  }
+]
+
+let transactionSequence = MOCK_HISTORY.length + 1
 
 function createTransactionId() {
   const now = new Date()
@@ -37,6 +75,22 @@ function createTransactionId() {
   transactionSequence += 1
 
   return `TX${date}${sequence}`
+}
+
+function createTransactionRecord(type, amount, balanceAfter, extra = {}) {
+  const record = {
+    transactionId: createTransactionId(),
+    transactionType: type,
+    amount,
+    transactionStatus: 'SUCCESS',
+    transactionTime: new Date().toISOString(),
+    balanceAfter,
+    accountNo: MOCK_ACCOUNT.accountNo,
+    ...extra
+  }
+
+  MOCK_HISTORY.unshift(record)
+  return record
 }
 
 function assertSession(sessionId) {
@@ -180,10 +234,16 @@ export async function mockWithdraw(payload) {
     throw createApiError('账户余额不足，无法完成取款', 403)
   }
 
+  if (amount > MOCK_DEVICE.cashAvailable) {
+    throw createApiError('ATM 设备现金不足，无法完成取款', 409)
+  }
+
   MOCK_ACCOUNT.balance = Number((MOCK_ACCOUNT.balance - amount).toFixed(2))
+  MOCK_DEVICE.cashAvailable = Number((MOCK_DEVICE.cashAvailable - amount).toFixed(2))
+  const record = createTransactionRecord('WITHDRAW', amount, MOCK_ACCOUNT.balance)
 
   return createResponse({
-    transactionId: createTransactionId(),
+    transactionId: record.transactionId,
     success: true,
     message: payload.printReceipt ? '取款成功，已生成凭条请求' : '取款成功',
     remainingBalance: MOCK_ACCOUNT.balance
@@ -196,9 +256,10 @@ export async function mockDeposit(payload) {
 
   const amount = parseAmount(payload.amount)
   MOCK_ACCOUNT.balance = Number((MOCK_ACCOUNT.balance + amount).toFixed(2))
+  const record = createTransactionRecord('DEPOSIT', amount, MOCK_ACCOUNT.balance)
 
   return createResponse({
-    transactionId: createTransactionId(),
+    transactionId: record.transactionId,
     success: true,
     message: payload.printReceipt ? '存款成功，已生成凭条请求' : '存款成功',
     updatedBalance: MOCK_ACCOUNT.balance
@@ -227,9 +288,12 @@ export async function mockTransfer(payload) {
   }
 
   MOCK_ACCOUNT.balance = Number((MOCK_ACCOUNT.balance - amount).toFixed(2))
+  const record = createTransactionRecord('TRANSFER', amount, MOCK_ACCOUNT.balance, {
+    targetAccountNo: target.accountNo
+  })
 
   return createResponse({
-    transactionId: createTransactionId(),
+    transactionId: record.transactionId,
     success: true,
     message: `转账成功，收款账户：${target.accountNo}`,
     remainingBalance: MOCK_ACCOUNT.balance
@@ -257,6 +321,85 @@ export async function mockChangePassword(payload) {
       message: '密码修改成功，请重新登录'
     },
     '密码修改成功，请重新登录'
+  )
+}
+
+export async function mockGetTransactionHistory(sessionId, params = {}) {
+  await sleep(320)
+  assertSession(sessionId)
+
+  const page = Math.max(Number(params.page) || 1, 1)
+  const size = Math.min(Math.max(Number(params.size) || 10, 1), 50)
+  const start = (page - 1) * size
+  const records = MOCK_HISTORY.slice(start, start + size).map((record) => ({
+    transactionId: record.transactionId,
+    transactionType: record.transactionType,
+    amount: record.amount,
+    transactionStatus: record.transactionStatus,
+    transactionTime: record.transactionTime
+  }))
+
+  return createResponse(
+    {
+      page,
+      size,
+      total: MOCK_HISTORY.length,
+      records
+    },
+    '查询成功'
+  )
+}
+
+export async function mockGetReceipt(transactionId, sessionId) {
+  await sleep(300)
+  assertSession(sessionId)
+
+  const record = MOCK_HISTORY.find((item) => item.transactionId === transactionId)
+
+  if (!record) {
+    throw createApiError('凭条不存在，请核对交易编号', 404)
+  }
+
+  return createResponse(
+    {
+      transactionId: record.transactionId,
+      type: record.transactionType,
+      amount: record.amount,
+      balanceAfter: record.balanceAfter,
+      time: record.transactionTime,
+      accountNo: record.accountNo
+    },
+    '获取成功'
+  )
+}
+
+export async function mockGetDeviceStatus() {
+  await sleep(260)
+
+  return createResponse(
+    {
+      atmCode: MOCK_DEVICE.atmCode,
+      location: MOCK_DEVICE.location,
+      status: MOCK_DEVICE.status,
+      cashAvailable: MOCK_DEVICE.cashAvailable
+    },
+    '查询成功'
+  )
+}
+
+export async function mockCheckCashAvailability(payload) {
+  await sleep(260)
+
+  const amount = parseAmount(payload.amount)
+  const available = MOCK_DEVICE.status === 'RUNNING' && amount <= MOCK_DEVICE.cashAvailable
+
+  return createResponse(
+    {
+      available,
+      amount,
+      cashAvailable: MOCK_DEVICE.cashAvailable
+    },
+    available ? '检查成功' : '设备现金不足'
   )
 }
 

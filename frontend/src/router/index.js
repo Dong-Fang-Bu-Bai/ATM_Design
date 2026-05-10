@@ -52,6 +52,24 @@ const routes = [
     meta: { title: '修改密码', requiresAuth: true }
   },
   {
+    path: '/history',
+    name: 'history',
+    component: () => import('@/views/TransactionHistoryView.vue'),
+    meta: { title: '交易流水', requiresAuth: true }
+  },
+  {
+    path: '/receipt/:transactionId?',
+    name: 'receipt',
+    component: () => import('@/views/ReceiptView.vue'),
+    meta: { title: '交易凭条', requiresAuth: true }
+  },
+  {
+    path: '/device-status',
+    name: 'device-status',
+    component: () => import('@/views/DeviceStatusView.vue'),
+    meta: { title: '设备状态', requiresAuth: true }
+  },
+  {
     path: '/feature/:feature',
     name: 'feature',
     component: () => import('@/views/PlaceholderView.vue'),
