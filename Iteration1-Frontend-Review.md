@@ -112,7 +112,7 @@ vite: not found
 listen EPERM: operation not permitted 0.0.0.0:5173
 ```
 
-在放开本地端口监听后，开发服务启动成功，可正常通过浏览器访问。
+这是当时旧配置绑定 `0.0.0.0` 时的错误记录。当前前端脚本已统一为本机地址：真实联调使用 `http://127.0.0.1:5173/`，Mock 演示使用 `http://127.0.0.1:5174/`。
 
 ### 4.6 最终验证结果
 
@@ -121,7 +121,7 @@ listen EPERM: operation not permitted 0.0.0.0:5173
 - 前端依赖安装完成
 - `npm run build` 构建通过
 - `npm run dev` 开发服务成功启动
-- 本地访问地址可用：`http://localhost:5173/`
+- 本地访问地址可用：`http://127.0.0.1:5173/`
 
 ---
 
@@ -138,13 +138,20 @@ npm run dev
 浏览器访问：
 
 ```text
-http://localhost:5173/
+http://127.0.0.1:5173/
 ```
 
-如果后端接口尚未就绪，可通过环境变量启用 mock 模式：
+当前统一端口口径如下：
+
+| 场景 | 命令 | 浏览器打开 |
+| --- | --- | --- |
+| 真实后端联调 | `npm run dev` 或 `npm run dev:real` | `http://127.0.0.1:5173/` |
+| 前端 Mock 演示 | `npm run dev:mock` | `http://127.0.0.1:5174/` |
+
+如果后端接口尚未就绪，可运行 mock 模式：
 
 ```bash
-VITE_USE_MOCK=true
+npm run dev:mock
 ```
 
 演示账号如下：

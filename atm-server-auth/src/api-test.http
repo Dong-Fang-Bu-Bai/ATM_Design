@@ -1,4 +1,4 @@
-### 1. 登录接口（获取 Token）
+### 1. 登录接口（获取 sessionId）
 POST http://localhost:8080/api/atm/auth/login
 Content-Type: application/json
 
@@ -8,36 +8,87 @@ Content-Type: application/json
 }
 
 ### 2. 账户信息查询接口
-GET http://localhost:8080/api/atm/account/info?cardNo=6222020000000001
+GET http://localhost:8080/api/atm/accounts/profile?sessionId=REPLACE_WITH_SESSION_ID
 
-### 利用token访问
-GET http://localhost:8080/api/atm/account/info?token=0e758a10a98f4a12a9168dc666188cfd
-
-### 3. 完整账户信息查询接口（新增）
-GET http://localhost:8080/api/atm/account/full-info?token=0e758a10a98f4a12a9168dc666188cfd
+### 3. 完整账户信息查询接口
+GET http://localhost:8080/api/atm/accounts/full-info?sessionId=REPLACE_WITH_SESSION_ID
 
 ### 4. 余额查询接口
-GET http://localhost:8080/api/atm/account/balance?cardNo=6222020000000001
+GET http://localhost:8080/api/atm/accounts/balance?sessionId=REPLACE_WITH_SESSION_ID
 
-### 利用token访问
-GET http://localhost:8080/api/atm/account/balance?token=0e758a10a98f4a12a9168dc666188cfd
+### 5. 交易前身份和账户校验接口
+GET http://localhost:8080/api/atm/accounts/validate-transaction?sessionId=REPLACE_WITH_SESSION_ID
 
-### 5. 修改密码接口（新增）
-POST http://localhost:8080/api/atm/auth/change-password?token=324a32f0697d4c77b2f2bbc3b09362e2
+### 6. 取款接口（成功后记录 transactionId，可用于第 9 步查询详情）
+POST http://localhost:8080/api/atm/transactions/withdraw
 Content-Type: application/json
 
 {
+  "sessionId": "REPLACE_WITH_SESSION_ID",
+  "amount": 100,
+  "printReceipt": false
+}
+
+### 7. 存款接口（成功后记录 transactionId，可用于第 9 步查询详情）
+POST http://localhost:8080/api/atm/transactions/deposit
+Content-Type: application/json
+
+{
+  "sessionId": "REPLACE_WITH_SESSION_ID",
+  "amount": 200,
+  "printReceipt": false
+}
+
+### 8. 转账接口（演示目标账户：ACC20001）
+POST http://localhost:8080/api/atm/transactions/transfer
+Content-Type: application/json
+
+{
+  "sessionId": "REPLACE_WITH_SESSION_ID",
+  "targetAccountNo": "ACC20001",
+  "amount": 100,
+  "printReceipt": false
+}
+
+### 9. 交易详情查询接口（替换为第 6、7 或 8 步返回的 transactionId）
+GET http://localhost:8080/api/atm/transactions/REPLACE_WITH_TRANSACTION_ID
+
+### 10. 余额不足验证示例
+POST http://localhost:8080/api/atm/transactions/transfer
+Content-Type: application/json
+
+{
+  "sessionId": "REPLACE_WITH_SESSION_ID",
+  "targetAccountNo": "ACC20001",
+  "amount": 9000,
+  "printReceipt": false
+}
+
+### 11. 目标账户不存在验证示例
+POST http://localhost:8080/api/atm/transactions/transfer
+Content-Type: application/json
+
+{
+  "sessionId": "REPLACE_WITH_SESSION_ID",
+  "targetAccountNo": "ACC99999",
+  "amount": 100,
+  "printReceipt": false
+}
+
+### 12. 修改密码接口（成功后当前 sessionId 失效，需要重新登录）
+POST http://localhost:8080/api/atm/auth/change-password
+Content-Type: application/json
+
+{
+  "sessionId": "REPLACE_WITH_SESSION_ID",
   "oldPassword": "123456",
   "newPassword": "654321"
 }
 
-### 6. 交易前身份和账户校验接口（新增）
-GET http://localhost:8080/api/atm/account/validate-transaction?token=0e758a10a98f4a12a9168dc666188cfd
-
-### 7. 退出登录接口（替换 Token 为登录返回的 sessionId）+验证 Token 失效
+### 13. 退出登录接口
 POST http://localhost:8080/api/atm/auth/logout
 Content-Type: application/json
 
 {
-  "token": "88d9d3b19c5c40d799685a1df69ffef2"
+  "sessionId": "REPLACE_WITH_SESSION_ID"
 }

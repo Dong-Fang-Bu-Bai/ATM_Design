@@ -1,0 +1,64 @@
+classDiagram
+    class TransactionController {
+        +withdraw(request)
+        +deposit(request)
+        +transfer(request)
+        +getTransaction(transactionId)
+    }
+    class TransactionService {
+        <<interface>>
+        +withdraw(request)
+        +deposit(request)
+        +transfer(request)
+        +getTransactionById(transactionId)
+    }
+    class TransactionServiceImpl {
+        -SessionValidator sessionValidator
+        -AccountMapper accountMapper
+        -TransactionMapper transactionMapper
+        +withdraw(request)
+        +deposit(request)
+        +transfer(request)
+        +getTransactionById(transactionId)
+        -loadAccountContext(sessionId)
+        -createTransaction(...)
+        -markSuccess(...)
+    }
+    class SessionValidator {
+        +validateAndGetCardNo(sessionId, token)
+    }
+    class AccountMapper {
+        +selectById(id)
+        +selectByAccountNo(accountNo)
+        +addBalance(id, amount)
+        +subtractBalance(id, amount)
+    }
+    class TransactionMapper {
+        +insert(transaction)
+        +updateStatus(...)
+        +selectByTransactionId(id)
+        +sumTodayAmount(cardNo, type)
+    }
+    class Transaction {
+        +transactionId
+        +transactionType
+        +amount
+        +balanceBefore
+        +balanceAfter
+        +transactionStatus
+        +targetAccountNo
+    }
+    class Result {
+        +code
+        +message
+        +data
+        +timestamp
+    }
+
+    TransactionController --> TransactionService
+    TransactionService <|.. TransactionServiceImpl
+    TransactionServiceImpl --> SessionValidator
+    TransactionServiceImpl --> AccountMapper
+    TransactionServiceImpl --> TransactionMapper
+    TransactionServiceImpl --> Transaction
+    TransactionController --> Result

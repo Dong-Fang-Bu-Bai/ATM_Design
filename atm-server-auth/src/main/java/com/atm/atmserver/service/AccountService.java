@@ -17,7 +17,7 @@ public interface AccountService {
     AccountInfoResponse getAccountInfo(String cardNo);
 
     /**
-     * 根据卡号查询账户完整详细信息（客户+账户+银行卡）
+     * 根据卡号查询账户完整详细信息
      * @param cardNo 银行卡号
      * @return 完整账户信息响应DTO
      */

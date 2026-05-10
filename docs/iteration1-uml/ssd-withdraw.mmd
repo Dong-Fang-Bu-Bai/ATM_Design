@@ -1,0 +1,16 @@
+sequenceDiagram
+    actor Customer as 客户
+    participant UI as 取款入口/后续页面
+    participant API as atm.js/http.js
+    participant C as TransactionController
+    participant S as TransactionServiceImpl
+    participant E as GlobalExceptionHandler
+    Customer->>UI: 选择取款并输入金额
+    UI->>API: withdraw(sessionId, amount, printReceipt)
+    API->>C: POST /api/atm/transactions/withdraw
+    C->>S: withdraw(WithdrawRequest)
+    S-->>E: ApiException(501)
+    E-->>API: Result(code=501)
+    API-->>UI: 交易模块骨架提示
+    UI-->>Customer: 展示第二次迭代待实现
+

@@ -1,12 +1,28 @@
 # ATM Frontend
 
-第一次迭代前端工程，覆盖欢迎页、登录页、主菜单页、查询余额页，以及后续功能入口占位。
+ATM 前端工程，覆盖欢迎页、登录页、主菜单页、查询余额页，以及第二次迭代的取款、存款、转账、修改密码页面。
 
 ## 运行
+
+前端端口统一如下：
+
+| 场景 | 命令 | 浏览器打开 |
+| --- | --- | --- |
+| 真实后端联调 | `npm run dev` 或 `npm run dev:real` | `http://127.0.0.1:5173/` |
+| 前端 Mock 演示 | `npm run dev:mock` | `http://127.0.0.1:5174/` |
+
+真实后端联调：
 
 ```bash
 npm install
 npm run dev
+```
+
+Mock 演示：
+
+```bash
+npm install
+npm run dev:mock
 ```
 
 ## 环境变量
@@ -18,7 +34,25 @@ VITE_API_BASE_URL=http://localhost:8080
 VITE_USE_MOCK=false
 ```
 
-如果后端接口尚未就绪，可将 `VITE_USE_MOCK` 改为 `true`，使用以下演示账号：
+如果后端接口尚未就绪，优先运行 `npm run dev:mock`。该命令会读取 `.env.mock`，启用 `VITE_USE_MOCK=true`，并使用 `http://127.0.0.1:5174/`。
+
+Mock 演示账号：
 
 - 卡号：`6222020000000001`
 - 密码：`123456`
+
+## 接口契约
+
+前端真实联调统一使用 `sessionId` 字段，不主动发送旧字段 `token`。账户预取调用：
+
+```text
+GET /api/atm/accounts/full-info?sessionId=...
+```
+
+取款、存款、转账提交前会先调用：
+
+```text
+GET /api/atm/accounts/validate-transaction?sessionId=...
+```
+
+后端响应统一为 `code`、`message`、`data`、`timestamp`。修改密码成功后当前 `sessionId` 会失效，前端会清空本地会话并回到登录页。

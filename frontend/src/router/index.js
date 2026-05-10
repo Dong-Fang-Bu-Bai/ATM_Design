@@ -28,6 +28,30 @@ const routes = [
     meta: { title: '查询余额', requiresAuth: true }
   },
   {
+    path: '/withdraw',
+    name: 'withdraw',
+    component: () => import('@/views/WithdrawView.vue'),
+    meta: { title: '取款', requiresAuth: true }
+  },
+  {
+    path: '/deposit',
+    name: 'deposit',
+    component: () => import('@/views/DepositView.vue'),
+    meta: { title: '存款', requiresAuth: true }
+  },
+  {
+    path: '/transfer',
+    name: 'transfer',
+    component: () => import('@/views/TransferView.vue'),
+    meta: { title: '转账', requiresAuth: true }
+  },
+  {
+    path: '/change-password',
+    name: 'change-password',
+    component: () => import('@/views/ChangePasswordView.vue'),
+    meta: { title: '修改密码', requiresAuth: true }
+  },
+  {
     path: '/feature/:feature',
     name: 'feature',
     component: () => import('@/views/PlaceholderView.vue'),

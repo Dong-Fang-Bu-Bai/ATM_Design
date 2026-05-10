@@ -15,7 +15,7 @@ spring:
     #Name: DB_PASSWORD
     #Value: 你的本地 MySQL 密码（比如 123456）
     #点击 OK → Apply → OK 保存配置。
-    password: ${DB_PASSWORD} # 格式解释：${DB_PASSWORD:} 表示读取系统环境变量 DB_PASSWORD，如果没设置则为空
+    password: ${DB_PASSWORD:} # 格式解释：${DB_PASSWORD:} 表示读取系统环境变量 DB_PASSWORD，如果没设置则为空
 
 # MyBatis配置（消除之前的Mapper扫描警告）
 mybatis:

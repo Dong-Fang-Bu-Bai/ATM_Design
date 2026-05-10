@@ -1,0 +1,21 @@
+sequenceDiagram
+    actor Customer as 客户
+    participant UI as BalanceView
+    participant API as atm.js/http.js
+    participant C as AccountController
+    participant T as TokenManager
+    participant S as AccountServiceImpl
+    participant DB as BankCardMapper/AccountMapper
+    Customer->>UI: 选择查询余额
+    UI->>API: getBalance(sessionId)
+    API->>C: GET /api/atm/accounts/balance
+    C->>T: 校验 sessionId
+    T-->>C: cardNo
+    C->>S: getBalance(cardNo)
+    S->>DB: 查询银行卡与账户
+    DB-->>S: Account.balance
+    S-->>C: BigDecimal balance
+    C-->>API: Result<BalanceResponse>
+    API-->>UI: balance
+    UI-->>Customer: 展示余额
+

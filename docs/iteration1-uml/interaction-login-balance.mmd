@@ -1,0 +1,18 @@
+flowchart LR
+    LoginView --> AtmApi[atm.js]
+    BalanceView --> AtmApi
+    AtmApi --> Http[axios http.js]
+    Http --> AuthController
+    Http --> AccountController
+    AuthController --> AuthServiceImpl
+    AccountController --> TokenManager
+    AccountController --> AccountServiceImpl
+    AuthServiceImpl --> BankCardMapper
+    AuthServiceImpl --> TokenManager
+    AccountServiceImpl --> BankCardMapper
+    AccountServiceImpl --> AccountMapper
+    AccountServiceImpl --> CustomerMapper
+    BankCardMapper --> BankCard
+    AccountMapper --> Account
+    CustomerMapper --> Customer
+

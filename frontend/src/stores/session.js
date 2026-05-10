@@ -30,12 +30,16 @@ export const useSessionStore = defineStore('session', {
       const raw = window.localStorage.getItem(STORAGE_KEY)
 
       if (raw) {
-        const saved = JSON.parse(raw)
-        this.sessionId = saved.sessionId || ''
-        this.customerName = saved.customerName || ''
-        this.accountNo = saved.accountNo || ''
-        this.profile = saved.profile || null
-        this.balance = saved.balance ?? null
+        try {
+          const saved = JSON.parse(raw)
+          this.sessionId = saved.sessionId || ''
+          this.customerName = saved.customerName || ''
+          this.accountNo = saved.accountNo || ''
+          this.profile = saved.profile || null
+          this.balance = saved.balance ?? null
+        } catch (error) {
+          window.localStorage.removeItem(STORAGE_KEY)
+        }
       }
 
       this.hydrated = true
@@ -57,13 +61,18 @@ export const useSessionStore = defineStore('session', {
       )
     },
     setSession(data) {
-      this.sessionId = data.sessionId
-      this.customerName = data.customerName
-      this.accountNo = data.accountNo
+      this.sessionId = data.sessionId || ''
+      this.customerName = data.customerName || ''
+      this.accountNo = data.accountNo || ''
+      this.profile = null
+      this.balance = null
       this.persist()
     },
     setProfile(profile) {
       this.profile = profile
+      this.customerName = profile?.customerName || this.customerName
+      this.accountNo = profile?.accountNo || this.accountNo
+      this.balance = profile?.balance ?? this.balance
       this.persist()
     },
     setBalance(balance) {

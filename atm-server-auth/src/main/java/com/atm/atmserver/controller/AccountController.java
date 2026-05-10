@@ -2,6 +2,7 @@ package com.atm.atmserver.controller;
 
 import com.atm.atmserver.common.Result;
 import com.atm.atmserver.dto.AccountInfoResponse;
+import com.atm.atmserver.dto.BalanceResponse;
 import com.atm.atmserver.dto.FullAccountInfoResponse;
 import com.atm.atmserver.dto.TransactionValidationResponse;
 import com.atm.atmserver.service.AccountService;
@@ -15,87 +16,77 @@ import org.springframework.web.bind.annotation.RestController;
 import java.math.BigDecimal;
 
 @RestController
-@RequestMapping("/account")
+@RequestMapping({"/account", "/accounts"})
 public class AccountController {
 
     @Autowired
     private AccountService accountService;
     @Autowired
-    private SessionValidator sessionValidator; // 注入会话校验器
+    private SessionValidator sessionValidator;
 
     /**
-     * 账户信息查询接口（加 Token 鉴权）
-     * 访问地址：http://localhost:8080/api/atm/account/info?token=xxx
-     * @param token 登录返回的 Token
+     * 账户信息查询接口
+     * 兼容新老路径与参数名：
+     * /api/atm/account/info?token=xxx
+     * /api/atm/accounts/profile?sessionId=xxx
      * @return 账户信息
      */
-    @GetMapping("/info")
-    public Result<AccountInfoResponse> getAccountInfo(@RequestParam String token) {
-        try {
-            // 1. 验证 Token 有效性并获取卡号
-            String cardNo = sessionValidator.validateAndGetCardNo(token);
-            // 2. 查询账户信息
-            AccountInfoResponse accountInfo = accountService.getAccountInfo(cardNo);
-            return Result.success(accountInfo);
-        } catch (RuntimeException e) {
-            return Result.unauthorized(e.getMessage());
-        }
+    @GetMapping({"/info", "/profile"})
+    public Result<AccountInfoResponse> getAccountInfo(
+            @RequestParam(required = false) String token,
+            @RequestParam(required = false) String sessionId
+    ) {
+        String cardNo = sessionValidator.validateAndGetCardNo(sessionId, token);
+        AccountInfoResponse accountInfo = accountService.getAccountInfo(cardNo);
+        return Result.success(accountInfo);
     }
 
     /**
-     * 完整账户信息查询接口（加 Token 鉴权）
-     * 访问地址：http://localhost:8080/api/atm/account/full-info?token=xxx
-     * @param token 登录返回的 Token
+     * 完整账户信息查询接口
+     * 主路径：/api/atm/accounts/full-info?sessionId=xxx
+     * 兼容：/api/atm/account/full-info?token=xxx
      * @return 完整账户信息
      */
     @GetMapping("/full-info")
-    public Result<FullAccountInfoResponse> getFullAccountInfo(@RequestParam String token) {
-        try {
-            // 1. 验证 Token 有效性并获取卡号
-            String cardNo = sessionValidator.validateAndGetCardNo(token);
-            // 2. 查询完整账户信息
-            FullAccountInfoResponse accountInfo = accountService.getFullAccountInfo(cardNo);
-            return Result.success(accountInfo);
-        } catch (RuntimeException e) {
-            return Result.unauthorized(e.getMessage());
-        }
+    public Result<FullAccountInfoResponse> getFullAccountInfo(
+            @RequestParam(required = false) String sessionId,
+            @RequestParam(required = false) String token
+    ) {
+        String cardNo = sessionValidator.validateAndGetCardNo(sessionId, token);
+        FullAccountInfoResponse accountInfo = accountService.getFullAccountInfo(cardNo);
+        return Result.success(accountInfo);
     }
 
     /**
-     * 余额查询接口（加 Token 鉴权）
-     * 访问地址：http://localhost:8080/api/atm/account/balance?token=xxx
-     * @param token 登录返回的 Token
+     * 余额查询接口
+     * 兼容新老路径与参数名：
+     * /api/atm/account/balance?token=xxx
+     * /api/atm/accounts/balance?sessionId=xxx
      * @return 余额
      */
     @GetMapping("/balance")
-    public Result<BigDecimal> getBalance(@RequestParam String token) {
-        try {
-            // 1. 验证 Token 有效性并获取卡号
-            String cardNo = sessionValidator.validateAndGetCardNo(token);
-            // 2. 查询余额
-            BigDecimal balance = accountService.getBalance(cardNo);
-            return Result.success(balance);
-        } catch (RuntimeException e) {
-            return Result.unauthorized(e.getMessage());
-        }
+    public Result<BalanceResponse> getBalance(
+            @RequestParam(required = false) String token,
+            @RequestParam(required = false) String sessionId
+    ) {
+        BigDecimal balance = accountService.getBalance(sessionValidator.validateAndGetCardNo(sessionId, token));
+        BalanceResponse response = new BalanceResponse();
+        response.setBalance(balance);
+        return Result.success(response);
     }
 
     /**
-     * 交易前身份和账户校验接口（加 Token 鉴权）
-     * 访问地址：http://localhost:8080/api/atm/account/validate-transaction?token=xxx
-     * @param token 登录返回的 Token
+     * 交易前身份和账户校验接口
+     * 主路径：/api/atm/accounts/validate-transaction?sessionId=xxx
      * @return 交易验证结果
      */
     @GetMapping("/validate-transaction")
-    public Result<TransactionValidationResponse> validateForTransaction(@RequestParam String token) {
-        try {
-            // 1. 验证 Token 有效性并获取卡号
-            String cardNo = sessionValidator.validateAndGetCardNo(token);
-            // 2. 进行交易前验证
-            TransactionValidationResponse validationResponse = accountService.validateForTransaction(cardNo);
-            return Result.success(validationResponse);
-        } catch (RuntimeException e) {
-            return Result.unauthorized(e.getMessage());
-        }
+    public Result<TransactionValidationResponse> validateForTransaction(
+            @RequestParam(required = false) String sessionId,
+            @RequestParam(required = false) String token
+    ) {
+        String cardNo = sessionValidator.validateAndGetCardNo(sessionId, token);
+        TransactionValidationResponse validation = accountService.validateForTransaction(cardNo);
+        return Result.success(validation);
     }
 }

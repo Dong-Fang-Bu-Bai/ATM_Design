@@ -1,0 +1,15 @@
+flowchart LR
+    UI[Vue ATM 前端\nWithdraw/Deposit/Transfer/ChangePassword]
+    API[统一 API 封装\natm.js + Result]
+    CTRL[Controller Facade\nAuth/Account/TransactionController]
+    SVC[TransactionService Facade\n隐藏会话、校验、流水与余额更新]
+    TX[Spring AOP Proxy\n@Transactional 事务边界]
+    RULE[Template Method 思想\n公共交易骨架 + 类型差异规则]
+    ADAPTER[Adapter 兼容层\nsessionId 主契约 + token 旧别名]
+    MAP[MyBatis Mapper Proxy\nAccountMapper/TransactionMapper]
+    DB[(H2/MySQL\naccount + transaction_record)]
+
+    UI --> API --> CTRL --> SVC
+    SVC --> TX --> RULE
+    SVC --> ADAPTER
+    RULE --> MAP --> DB

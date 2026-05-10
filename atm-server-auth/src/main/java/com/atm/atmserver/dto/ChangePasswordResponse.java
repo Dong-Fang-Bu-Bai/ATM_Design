@@ -3,10 +3,10 @@ package com.atm.atmserver.dto;
 import lombok.Data;
 
 /**
- * 修改密码响应DTO
+ * 修改密码响应 DTO
  */
 @Data
 public class ChangePasswordResponse {
-    private String message;  // 操作结果消息
-    private boolean success; // 是否成功
+    private boolean success;
+    private String message;
 }

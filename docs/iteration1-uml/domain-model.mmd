@@ -1,0 +1,51 @@
+classDiagram
+    class Customer {
+      Long id
+      String customerName
+      String idCard
+      String phone
+      LocalDateTime createTime
+    }
+    class BankCard {
+      Long id
+      String cardNo
+      String password
+      Long accountId
+    }
+    class Account {
+      Long id
+      Long customerId
+      String accountNo
+      BigDecimal balance
+      Integer accountType
+    }
+    class Session {
+      String sessionId
+      String cardNo
+      boolean valid
+    }
+    class Transaction {
+      Long id
+      String transactionId
+      Integer transactionType
+      BigDecimal amount
+      Integer transactionStatus
+      LocalDateTime createdAt
+    }
+    class Receipt {
+      String transactionId
+      LocalDateTime printTime
+    }
+    class ATMDevice {
+      String deviceId
+      boolean cashAvailable
+      boolean printerAvailable
+    }
+    Customer "1" --> "1..*" BankCard
+    Customer "1" --> "1..*" Account
+    BankCard "1" --> "1" Account
+    BankCard "1" --> "0..1" Session
+    Account "1" --> "0..*" Transaction
+    Transaction "0..1" --> "0..1" Receipt
+    ATMDevice "1" --> "0..*" Transaction
+

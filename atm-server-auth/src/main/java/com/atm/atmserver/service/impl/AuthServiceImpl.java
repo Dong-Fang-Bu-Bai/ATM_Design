@@ -1,5 +1,6 @@
 package com.atm.atmserver.service.impl;
 
+import com.atm.atmserver.common.ApiException;
 import com.atm.atmserver.dto.ChangePasswordRequest;
 import com.atm.atmserver.dto.ChangePasswordResponse;
 import com.atm.atmserver.dto.LoginRequest;
@@ -9,7 +10,9 @@ import com.atm.atmserver.mapper.BankCardMapper;
 import com.atm.atmserver.service.AuthService;
 import com.atm.atmserver.util.TokenManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -23,10 +26,10 @@ public class AuthServiceImpl implements AuthService {
     public LoginResponse login(LoginRequest request) {
         BankCard bankCard = bankCardMapper.selectByCardNo(request.getCardNo());
         if (bankCard == null) {
-            throw new RuntimeException("卡号不存在");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "卡号不存在");
         }
         if (!bankCard.getPassword().equals(request.getPassword())) {
-            throw new RuntimeException("密码错误");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "密码错误");
         }
         // 生成 Token
         String token = tokenManager.generateToken(request.getCardNo());
@@ -41,55 +44,43 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void logout(String token) {
         if (!tokenManager.isValidToken(token)) {
-            throw new RuntimeException("Token 无效或已过期");
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "sessionId 无效或已过期");
         }
         tokenManager.logout(token);
     }
 
     @Override
     public ChangePasswordResponse changePassword(String cardNo, ChangePasswordRequest request) {
-        ChangePasswordResponse response = new ChangePasswordResponse();
-        
-        // 1. 验证卡号是否存在
         BankCard bankCard = bankCardMapper.selectByCardNo(cardNo);
         if (bankCard == null) {
-            response.setSuccess(false);
-            response.setMessage("卡号不存在");
-            return response;
+            throw new ApiException(HttpStatus.NOT_FOUND, "卡号不存在");
         }
-        
-        // 2. 验证原密码是否正确
+
         if (!bankCard.getPassword().equals(request.getOldPassword())) {
-            response.setSuccess(false);
-            response.setMessage("原密码错误");
-            return response;
+            throw new ApiException(HttpStatus.UNAUTHORIZED, "原密码错误");
         }
-        
-        // 3. 验证新密码是否符合要求（至少6位）
-        if (request.getNewPassword() == null || request.getNewPassword().length() < 6) {
-            response.setSuccess(false);
-            response.setMessage("新密码长度不能少于6位");
-            return response;
+
+        if (!StringUtils.hasText(request.getNewPassword()) || !request.getNewPassword().matches("\\d{6}")) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "新密码必须为 6 位数字");
         }
-        
-        // 4. 更新密码到数据库
+
+        if (bankCard.getPassword().equals(request.getNewPassword())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "新密码不能与原密码一致");
+        }
+
         int rows = bankCardMapper.updatePassword(cardNo, request.getNewPassword());
         if (rows <= 0) {
-            response.setSuccess(false);
-            response.setMessage("密码修改失败，请稍后重试");
-            return response;
+            throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "密码修改失败，请稍后重试");
         }
-        
-        // 5. 密码修改成功
-        response.setSuccess(true);
-        response.setMessage("密码修改成功");
-        
-        // 6. 使当前Token失效，要求重新登录
+
         String currentToken = tokenManager.getTokenByCardNo(cardNo);
         if (currentToken != null) {
             tokenManager.logout(currentToken);
         }
-        
+
+        ChangePasswordResponse response = new ChangePasswordResponse();
+        response.setSuccess(true);
+        response.setMessage("密码修改成功，请重新登录");
         return response;
     }
 }

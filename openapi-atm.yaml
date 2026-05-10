@@ -71,7 +71,7 @@ paths:
     post:
       tags: [Auth]
       summary: 修改密码
-      description: 修改当前银行卡登录密码。
+      description: 修改当前银行卡登录密码。请求体主字段使用 sessionId，兼容旧字段 token；修改成功后当前会话失效，需要重新登录。
       requestBody:
         required: true
         content:
@@ -84,7 +84,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiResponse'
+                $ref: '#/components/schemas/ChangePasswordResponse'
         '401':
           description: 原密码错误或会话失效
           content:
@@ -134,6 +134,48 @@ paths:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
 
+  /api/atm/accounts/full-info:
+    get:
+      tags: [Account]
+      summary: 查询完整账户信息
+      description: 查询当前登录账户的完整信息，包含基础账户信息、脱敏手机号和账户状态。
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: 查询成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FullAccountProfileResponse'
+        '401':
+          description: 会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/atm/accounts/validate-transaction:
+    get:
+      tags: [Account]
+      summary: 交易前身份和账户校验
+      description: 在取款、存款、转账前校验当前 sessionId 对应的银行卡、账户和客户信息是否可用。
+      parameters:
+        - $ref: '#/components/parameters/SessionId'
+      responses:
+        '200':
+          description: 校验完成
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionValidationResponse'
+        '401':
+          description: 会话失效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
   /api/atm/transactions/withdraw:
     post:
       tags: [Transaction]
@@ -151,9 +193,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionResponse'
-        '403':
-          description: 余额不足或 ATM 现金不足
+                $ref: '#/components/schemas/WithdrawResponse'
+        '400':
+          description: 金额无效、超出取款限额或余额不足
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: 会话失效或未登录
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 银行卡或账户不存在
           content:
             application/json:
               schema:
@@ -176,9 +230,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionResponse'
+                $ref: '#/components/schemas/DepositResponse'
+        '400':
+          description: 金额无效或超出存款限额
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         '401':
-          description: 会话失效
+          description: 会话失效或未登录
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: 银行卡或账户不存在
           content:
             application/json:
               schema:
@@ -201,15 +267,21 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TransactionResponse'
-        '403':
-          description: 余额不足
+                $ref: '#/components/schemas/TransferResponse'
+        '400':
+          description: 金额无效、目标账户为空、自转账、超出转账限额或余额不足
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '401':
+          description: 会话失效或未登录
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ApiResponse'
         '404':
-          description: 目标账户不存在
+          description: 银行卡、源账户或目标账户不存在
           content:
             application/json:
               schema:
@@ -229,6 +301,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TransactionDetailResponse'
+        '400':
+          description: 交易编号不能为空
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
         '404':
           description: 交易不存在
           content:
@@ -358,6 +436,10 @@ components:
           example: success
         data:
           nullable: true
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     LoginRequest:
       type: object
@@ -392,18 +474,26 @@ components:
           type: string
           example: 654321
 
+    ChangePasswordData:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 密码修改成功，请重新登录
+
     LoginData:
       type: object
       properties:
         sessionId:
           type: string
           example: atm_session_xxx
-        customerName:
-          type: string
-          example: 张三
-        accountNo:
-          type: string
-          example: ACC10001
+        accountId:
+          type: integer
+          format: int64
+          example: 10001
 
     LoginResponse:
       type: object
@@ -416,13 +506,30 @@ components:
           example: 登录成功
         data:
           $ref: '#/components/schemas/LoginData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
+
+    ChangePasswordResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: 密码修改成功，请重新登录
+        data:
+          $ref: '#/components/schemas/ChangePasswordData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     BalanceData:
       type: object
       properties:
-        accountNo:
-          type: string
-          example: ACC10001
         balance:
           type: number
           format: double
@@ -439,6 +546,10 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/BalanceData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     AccountProfileData:
       type: object
@@ -449,15 +560,35 @@ components:
         cardNo:
           type: string
           example: 6222020000000001
+        idCard:
+          type: string
+          example: 110101********1234
         accountNo:
           type: string
           example: ACC10001
+        balance:
+          type: number
+          format: double
+          example: 5000.00
         accountType:
           type: string
-          example: SAVING
-        accountStatus:
+          example: 储蓄卡
+        createTime:
           type: string
-          example: NORMAL
+          format: date-time
+          example: 2026-03-01T10:20:30
+
+    FullAccountProfileData:
+      allOf:
+        - $ref: '#/components/schemas/AccountProfileData'
+        - type: object
+          properties:
+            phone:
+              type: string
+              example: 138****0000
+            status:
+              type: string
+              example: 正常
 
     AccountProfileResponse:
       type: object
@@ -470,6 +601,75 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/AccountProfileData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
+
+    FullAccountProfileResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/FullAccountProfileData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
+
+    TransactionValidationData:
+      type: object
+      properties:
+        valid:
+          type: boolean
+          example: true
+        cardNo:
+          type: string
+          example: 6222020000000001
+        accountId:
+          type: integer
+          format: int64
+          example: 10001
+        accountNo:
+          type: string
+          example: ACC10001
+        balance:
+          type: number
+          format: double
+          example: 5000.00
+        customerName:
+          type: string
+          example: 张三
+        message:
+          type: string
+          example: 验证通过
+        accountType:
+          type: integer
+          example: 1
+        status:
+          type: string
+          example: 正常
+
+    TransactionValidationResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/TransactionValidationData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     WithdrawRequest:
       type: object
@@ -522,30 +722,158 @@ components:
     TransactionData:
       type: object
       properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
         transactionId:
           type: string
           example: TX202603010001
         transactionType:
+          type: integer
+          description: 交易类型：1-取款，2-存款，3-转账
+          example: 1
+        transactionTypeName:
           type: string
-          example: WITHDRAW
+          example: 取款
         amount:
           type: number
           format: double
           example: 1000
+        balanceBefore:
+          type: number
+          format: double
+          example: 5000
         balanceAfter:
           type: number
           format: double
           example: 4000
-        printReceipt:
-          type: boolean
-          example: true
         transactionStatus:
+          type: integer
+          description: 交易状态：0-待处理，1-成功，2-失败，3-已撤销
+          example: 1
+        transactionStatusName:
           type: string
-          example: SUCCESS
-        transactionTime:
+          example: 成功
+        targetAccountNo:
+          type: string
+          nullable: true
+          example: ACC20001
+        failureReason:
+          type: string
+          nullable: true
+          example: 余额不足
+        description:
+          type: string
+          example: ATM取款
+        createdAt:
           type: string
           format: date-time
           example: 2026-03-01T10:20:30
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: 2026-03-01T10:20:31
+
+    WithdrawData:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: TX202603010001
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 取款成功
+        remainingBalance:
+          type: number
+          format: double
+          example: 4000
+
+    WithdrawResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/WithdrawData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
+
+    DepositData:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: TX202603010002
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 存款成功
+        updatedBalance:
+          type: number
+          format: double
+          example: 7000
+
+    DepositResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/DepositData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
+
+    TransferData:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          example: TX202603010003
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+          example: 转账成功
+        remainingBalance:
+          type: number
+          format: double
+          example: 4200
+
+    TransferResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: success
+        data:
+          $ref: '#/components/schemas/TransferData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     TransactionResponse:
       type: object
@@ -558,6 +886,10 @@ components:
           example: 交易成功
         data:
           $ref: '#/components/schemas/TransactionData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     TransactionDetailResponse:
       type: object
@@ -570,6 +902,10 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/TransactionData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     TransactionHistoryItem:
       type: object
@@ -620,6 +956,10 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/TransactionHistoryData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     ReceiptData:
       type: object
@@ -657,6 +997,10 @@ components:
           example: 获取成功
         data:
           $ref: '#/components/schemas/ReceiptData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     DeviceStatusData:
       type: object
@@ -686,6 +1030,10 @@ components:
           example: 查询成功
         data:
           $ref: '#/components/schemas/DeviceStatusData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752
 
     CashCheckData:
       type: object
@@ -713,3 +1061,7 @@ components:
           example: 检查成功
         data:
           $ref: '#/components/schemas/CashCheckData'
+        timestamp:
+          type: integer
+          format: int64
+          example: 1778055092752

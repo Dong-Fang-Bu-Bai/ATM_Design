@@ -14,10 +14,10 @@ const logoutLoading = ref(false)
 
 const menuItems = [
   { label: '查询余额', route: '/balance', status: '本轮已交付' },
-  { label: '取款', route: '/feature/withdraw', status: '第二次迭代' },
-  { label: '存款', route: '/feature/deposit', status: '第二次迭代' },
-  { label: '转账', route: '/feature/transfer', status: '第二次迭代' },
-  { label: '修改密码', route: '/feature/change-password', status: '第二次迭代' },
+  { label: '取款', route: '/withdraw', status: '第二次迭代' },
+  { label: '存款', route: '/deposit', status: '第二次迭代' },
+  { label: '转账', route: '/transfer', status: '第二次迭代' },
+  { label: '修改密码', route: '/change-password', status: '第二次迭代' },
   { label: '交易凭条', route: '/feature/receipt', status: '第三次迭代' }
 ]
 
@@ -63,7 +63,7 @@ onMounted(() => {
   <AtmLayout
     eyebrow="Main Menu"
     title="请选择业务类型"
-    subtitle="主菜单按照 ATM 终端的单屏多入口方式组织，后续功能只需继续补充对应页面与接口调用。"
+    subtitle="主菜单已接入第二次迭代核心交易入口，凭条与流水保留到第三次迭代。"
   >
     <template #display>
       <div class="display-stack">
@@ -84,7 +84,7 @@ onMounted(() => {
 
     <div class="panel-header">
       <h2>ATM 主菜单</h2>
-      <p>余额查询已可用，其余入口已预留到后续迭代。</p>
+      <p>余额、取款、存款、转账、修改密码已具备前端演示流程。</p>
     </div>
 
     <div class="menu-grid">

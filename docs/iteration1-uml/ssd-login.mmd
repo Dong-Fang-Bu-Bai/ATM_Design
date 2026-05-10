@@ -1,0 +1,21 @@
+sequenceDiagram
+    actor Customer as 客户
+    participant UI as 前端 LoginView
+    participant API as atm.js/http.js
+    participant C as AuthController
+    participant S as AuthServiceImpl
+    participant DB as BankCardMapper/账户数据
+    participant T as TokenManager
+    Customer->>UI: 输入卡号和密码
+    UI->>API: login({cardNo,password})
+    API->>C: POST /api/atm/auth/login
+    C->>S: login(LoginRequest)
+    S->>DB: findByCardNo(cardNo)
+    DB-->>S: BankCard
+    S->>T: generateToken(cardNo)
+    T-->>S: sessionId
+    S-->>C: LoginResponse
+    C-->>API: Result<LoginResponse>
+    API-->>UI: sessionId
+    UI-->>Customer: 进入主菜单
+

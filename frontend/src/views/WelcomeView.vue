@@ -21,7 +21,7 @@ function goLogin() {
   <AtmLayout
     eyebrow="Self Service Banking"
     title="欢迎使用校园 ATM 虚拟终端"
-    subtitle="第一次迭代聚焦登录、主菜单与余额查询原型，页面流程已按 ATM 自助机交互组织。"
+    subtitle="当前前端支持登录、余额查询、取款、存款、转账和修改密码，页面流程已按 ATM 自助机交互组织。"
   >
     <template #display>
       <div class="display-stack">
@@ -39,7 +39,7 @@ function goLogin() {
             <li>插卡登录</li>
             <li>主菜单导航</li>
             <li>查询余额</li>
-            <li>交易功能入口预留</li>
+            <li>取款、存款、转账、修改密码</li>
           </ul>
         </div>
       </div>
@@ -58,7 +58,7 @@ function goLogin() {
         title="演示账号"
         type="info"
         :closable="false"
-        description="若本地未接后端，可在 .env 中设置 VITE_USE_MOCK=true，使用卡号 6222020000000001 / 密码 123456 体验流程。"
+        description="若本地未接后端，请运行 npm run dev:mock 并打开 http://127.0.0.1:5174/，使用卡号 6222020000000001 / 密码 123456 体验流程。"
       />
     </div>
   </AtmLayout>
