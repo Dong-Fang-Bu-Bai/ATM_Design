@@ -1,0 +1,31 @@
+sequenceDiagram
+    actor Customer as 客户
+    participant UI as Vue显示模块
+    participant API as atm.js
+    participant Tx as TransactionController
+    participant Receipt as ReceiptController
+    participant Service as TransactionService
+    participant Session as SessionValidator
+    participant Mapper as TransactionMapper
+    participant DB as 数据库
+
+    Customer->>UI: 查看交易流水
+    UI->>API: getTransactionHistory(sessionId,page,size)
+    API->>Tx: GET /transactions/history
+    Tx->>Service: getTransactionHistory
+    Service->>Session: 校验 sessionId
+    Session-->>Service: cardNo
+    Service->>Mapper: selectByAccountIdPaged
+    Mapper->>DB: 查询当前账户流水
+    DB-->>Mapper: records,total
+    Mapper-->>Service: 流水数据
+    Service-->>UI: 分页流水
+    Customer->>UI: 选择单笔凭条
+    UI->>API: getReceipt(transactionId,sessionId)
+    API->>Receipt: GET /receipts/{transactionId}
+    Receipt->>Service: getReceipt
+    Service->>Session: 校验当前会话账户
+    Service->>Mapper: selectByTransactionId
+    Mapper->>DB: 查询单笔交易
+    DB-->>Mapper: transaction
+    Service-->>UI: 凭条信息

@@ -1,0 +1,37 @@
+flowchart LR
+    subgraph Client[用户侧]
+      Browser[浏览器/ATM模拟终端]
+      Views[Vue页面: 菜单/交易/流水/凭条/设备]
+      Api[atm.js接口封装]
+      Browser --> Views --> Api
+    end
+
+    subgraph Server[Spring Boot后端]
+      Auth[认证与账户模块]
+      Tx[交易模块]
+      Device[设备模块]
+      Receipt[凭条模块]
+      Exception[统一异常处理]
+    end
+
+    subgraph Data[数据层]
+      Customer[(customer)]
+      Account[(account)]
+      Record[(transaction_record)]
+      Atm[(atm_device)]
+    end
+
+    Api --> Auth
+    Api --> Tx
+    Api --> Device
+    Api --> Receipt
+    Auth --> Customer
+    Auth --> Account
+    Tx --> Account
+    Tx --> Record
+    Tx --> Device
+    Device --> Atm
+    Receipt --> Record
+    Auth --> Exception
+    Tx --> Exception
+    Device --> Exception

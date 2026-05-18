@@ -203,11 +203,11 @@ Some chunks are larger than 500 kB after minification.
 - mock 模式支持第三次迭代完整演示。
 - 前端生产构建通过。
 
-整体判断：本轮前端结果适合作为第三次迭代交付版本，并已为后端后续完成流水、凭条和设备接口保留一致的联调契约。
+整体判断：本轮前端结果适合作为第三次迭代交付版本，并已与后端第三次迭代中完成的流水、凭条和设备接口保持一致的联调契约。
 
 ### 风险与后续注意事项
 
-- 第三次迭代后端接口仍需按 `openapi-atm.yaml` 完成真实实现，尤其是 `/api/atm/transactions/history`、`/api/atm/receipts/{transactionId}`、`/api/atm/device/status` 和 `/api/atm/device/cash-check`。
+- 第三次迭代后端接口已按 `openapi-atm.yaml` 完成真实实现，覆盖 `/api/atm/transactions/history`、`/api/atm/receipts/{transactionId}`、`/api/atm/device/status` 和 `/api/atm/device/cash-check`。
 - 凭条查询已要求携带 `sessionId`，后端实现时应校验该交易是否属于当前会话账户。
 - 当前构建仍有大包体积 warning，不阻塞课程交付，但建议最终版本优化 Element Plus 引入方式。
 - 当前审查范围限定为前端第三次迭代；后端真实业务闭环和 UML 终稿仍需分别审查。
