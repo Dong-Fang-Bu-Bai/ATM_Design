@@ -81,7 +81,7 @@ async function submit() {
   <AtmLayout
     eyebrow="Transfer"
     title="转账"
-    subtitle="接口：POST /api/atm/transactions/transfer"
+    subtitle="填写目标账户和转账金额，确认无误后提交交易。"
   >
     <template #display>
       <div class="display-stack">
@@ -94,15 +94,15 @@ async function submit() {
           <strong>{{ balanceLabel }}</strong>
         </div>
         <div class="info-card">
-          <span class="info-label">Mock 收款账户</span>
-          <strong>ACC20001 / ACC30001</strong>
+          <span class="info-label">收款账户</span>
+          <strong>请输入目标账户编号</strong>
         </div>
       </div>
     </template>
 
     <div class="panel-header">
       <h2>转账交易</h2>
-      <p>提交字段按 YAML 统一为 sessionId、targetAccountNo、amount、printReceipt。</p>
+      <p>请仔细核对收款账户和金额，提交后将生成交易记录。</p>
     </div>
 
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top">

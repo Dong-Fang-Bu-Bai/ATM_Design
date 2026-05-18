@@ -27,6 +27,10 @@
 | 存款 | `POST` | `/api/atm/transactions/deposit` | 请求体传 `sessionId`、`amount`、`printReceipt`；成功后返回 `transactionId` 和更新后余额 |
 | 转账 | `POST` | `/api/atm/transactions/transfer` | 请求体传 `sessionId`、`targetAccountNo`、`amount`、`printReceipt`；成功后返回 `transactionId` 和剩余余额 |
 | 交易详情 | `GET` | `/api/atm/transactions/{transactionId}` | 根据对外交易流水号查询交易详情 |
+| 交易流水 | `GET` | `/api/atm/transactions/history?sessionId=...&page=1&size=5` | 分页查询当前会话账户的交易记录 |
+| 交易凭条 | `GET` | `/api/atm/receipts/{transactionId}?sessionId=...` | 根据交易编号和当前会话查询凭条，禁止跨账户查看 |
+| 设备状态 | `GET` | `/api/atm/device/status` | 查询 ATM 编号、位置、运行状态和可用现金 |
+| 吐钞能力检查 | `POST` | `/api/atm/device/cash-check` | 请求体传 `amount`，判断设备现金是否足够 |
 
 ## 与交易模块协作
 
@@ -67,4 +71,7 @@ GET http://localhost:8080/api/atm/accounts/validate-transaction?sessionId=REPLAC
 | Token 管理 | `src/main/java/com/atm/atmserver/util/TokenManager.java` |
 | 认证接口 | `src/main/java/com/atm/atmserver/controller/AuthController.java` |
 | 账户接口 | `src/main/java/com/atm/atmserver/controller/AccountController.java` |
+| 设备接口 | `src/main/java/com/atm/atmserver/controller/DeviceController.java` |
+| 交易接口 | `../transaction/src/main/java/com/atm/atmserver/controller/TransactionController.java` |
+| 凭条接口 | `../transaction/src/main/java/com/atm/atmserver/controller/ReceiptController.java` |
 | HTTP 示例 | `src/api-test.http` |

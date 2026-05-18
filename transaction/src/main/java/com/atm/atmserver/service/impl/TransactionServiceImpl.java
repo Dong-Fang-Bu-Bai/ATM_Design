@@ -3,6 +3,9 @@ package com.atm.atmserver.service.impl;
 import com.atm.atmserver.common.ApiException;
 import com.atm.atmserver.dto.DepositRequest;
 import com.atm.atmserver.dto.DepositResponse;
+import com.atm.atmserver.dto.ReceiptResponse;
+import com.atm.atmserver.dto.TransactionHistoryItem;
+import com.atm.atmserver.dto.TransactionHistoryResponse;
 import com.atm.atmserver.dto.TransactionResponse;
 import com.atm.atmserver.dto.TransferRequest;
 import com.atm.atmserver.dto.TransferResponse;
@@ -14,6 +17,7 @@ import com.atm.atmserver.entity.Transaction;
 import com.atm.atmserver.mapper.AccountMapper;
 import com.atm.atmserver.mapper.BankCardMapper;
 import com.atm.atmserver.mapper.TransactionMapper;
+import com.atm.atmserver.service.DeviceService;
 import com.atm.atmserver.service.TransactionService;
 import com.atm.atmserver.util.SessionValidator;
 import com.atm.atmserver.util.TransactionUtils;
@@ -24,6 +28,8 @@ import org.springframework.util.StringUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -39,15 +45,18 @@ public class TransactionServiceImpl implements TransactionService {
     private final AccountMapper accountMapper;
     private final TransactionMapper transactionMapper;
     private final SessionValidator sessionValidator;
+    private final DeviceService deviceService;
 
     public TransactionServiceImpl(BankCardMapper bankCardMapper,
                                   AccountMapper accountMapper,
                                   TransactionMapper transactionMapper,
-                                  SessionValidator sessionValidator) {
+                                  SessionValidator sessionValidator,
+                                  DeviceService deviceService) {
         this.bankCardMapper = bankCardMapper;
         this.accountMapper = accountMapper;
         this.transactionMapper = transactionMapper;
         this.sessionValidator = sessionValidator;
+        this.deviceService = deviceService;
     }
 
     @Override
@@ -73,6 +82,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (context.account.getBalance().compareTo(amount) < 0) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "余额不足");
         }
+        deviceService.ensureCashAvailable(amount);
 
         BigDecimal balanceBefore = context.account.getBalance();
         BigDecimal balanceAfter = balanceBefore.subtract(amount);
@@ -84,6 +94,7 @@ public class TransactionServiceImpl implements TransactionService {
         if (updateCount == 0) {
             throw new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, "取款失败");
         }
+        deviceService.dispenseCash(amount);
 
         markSuccess(transaction, balanceAfter);
 
@@ -220,6 +231,52 @@ public class TransactionServiceImpl implements TransactionService {
         return convertToResponse(transaction);
     }
 
+    @Override
+    public TransactionHistoryResponse getTransactionHistory(String sessionId, Integer page, Integer size) {
+        AccountContext context = loadAccountContext(sessionId);
+        int currentPage = normalizePage(page);
+        int pageSize = normalizeSize(size);
+        int offset = (currentPage - 1) * pageSize;
+
+        List<TransactionHistoryItem> records = transactionMapper
+                .selectByAccountIdPaged(context.account.getId(), pageSize, offset)
+                .stream()
+                .map(this::convertToHistoryItem)
+                .collect(Collectors.toList());
+
+        TransactionHistoryResponse response = new TransactionHistoryResponse();
+        response.setPage(currentPage);
+        response.setSize(pageSize);
+        response.setTotal(transactionMapper.countByAccountId(context.account.getId()));
+        response.setRecords(records);
+        return response;
+    }
+
+    @Override
+    public ReceiptResponse getReceipt(String transactionId, String sessionId) {
+        if (!StringUtils.hasText(transactionId)) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "交易编号不能为空");
+        }
+
+        AccountContext context = loadAccountContext(sessionId);
+        Transaction transaction = transactionMapper.selectByTransactionId(transactionId);
+        if (transaction == null || !context.account.getId().equals(transaction.getAccountId())) {
+            throw new ApiException(HttpStatus.NOT_FOUND, "凭条不存在");
+        }
+        if (!Transaction.STATUS_SUCCESS.equals(transaction.getTransactionStatus())) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "仅成功交易可生成凭条");
+        }
+
+        ReceiptResponse response = new ReceiptResponse();
+        response.setTransactionId(transaction.getTransactionId());
+        response.setType(getTransactionTypeCode(transaction.getTransactionType()));
+        response.setAmount(transaction.getAmount());
+        response.setBalanceAfter(transaction.getBalanceAfter());
+        response.setTime(transaction.getCompletedAt() == null ? transaction.getCreatedAt() : transaction.getCompletedAt());
+        response.setAccountNo(context.account.getAccountNo());
+        return response;
+    }
+
     private void requireRequest(Object request) {
         if (request == null) {
             throw new ApiException(HttpStatus.BAD_REQUEST, "请求体不能为空");
@@ -295,6 +352,70 @@ public class TransactionServiceImpl implements TransactionService {
         response.setCreatedAt(transaction.getCreatedAt());
         response.setCompletedAt(transaction.getCompletedAt());
         return response;
+    }
+
+    private TransactionHistoryItem convertToHistoryItem(Transaction transaction) {
+        TransactionHistoryItem item = new TransactionHistoryItem();
+        item.setTransactionId(transaction.getTransactionId());
+        item.setTransactionType(getTransactionTypeCode(transaction.getTransactionType()));
+        item.setAmount(transaction.getAmount());
+        item.setTransactionStatus(getTransactionStatusCode(transaction.getTransactionStatus()));
+        item.setTransactionTime(transaction.getCompletedAt() == null ? transaction.getCreatedAt() : transaction.getCompletedAt());
+        return item;
+    }
+
+    private int normalizePage(Integer page) {
+        if (page == null) {
+            return 1;
+        }
+        if (page < 1) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "页码必须大于0");
+        }
+        return page;
+    }
+
+    private int normalizeSize(Integer size) {
+        if (size == null) {
+            return 10;
+        }
+        if (size < 1 || size > 50) {
+            throw new ApiException(HttpStatus.BAD_REQUEST, "分页大小必须在1到50之间");
+        }
+        return size;
+    }
+
+    private String getTransactionTypeCode(Integer type) {
+        if (type == null) {
+            return "UNKNOWN";
+        }
+        switch (type) {
+            case 1:
+                return "WITHDRAW";
+            case 2:
+                return "DEPOSIT";
+            case 3:
+                return "TRANSFER";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
+    private String getTransactionStatusCode(Integer status) {
+        if (status == null) {
+            return "UNKNOWN";
+        }
+        switch (status) {
+            case 0:
+                return "PENDING";
+            case 1:
+                return "SUCCESS";
+            case 2:
+                return "FAILED";
+            case 3:
+                return "CANCELLED";
+            default:
+                return "UNKNOWN";
+        }
     }
 
     private String getTransactionTypeName(Integer type) {

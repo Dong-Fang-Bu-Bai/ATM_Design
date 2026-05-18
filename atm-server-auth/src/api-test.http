@@ -50,10 +50,27 @@ Content-Type: application/json
   "printReceipt": false
 }
 
-### 9. 交易详情查询接口（替换为第 6、7 或 8 步返回的 transactionId）
+### 9. 交易流水查询接口
+GET http://localhost:8080/api/atm/transactions/history?sessionId=REPLACE_WITH_SESSION_ID&page=1&size=5
+
+### 10. 交易详情查询接口（替换为第 6、7 或 8 步返回的 transactionId）
 GET http://localhost:8080/api/atm/transactions/REPLACE_WITH_TRANSACTION_ID
 
-### 10. 余额不足验证示例
+### 11. 交易凭条查询接口（替换为第 6、7 或 8 步返回的 transactionId）
+GET http://localhost:8080/api/atm/receipts/REPLACE_WITH_TRANSACTION_ID?sessionId=REPLACE_WITH_SESSION_ID
+
+### 12. 设备状态查询接口
+GET http://localhost:8080/api/atm/device/status
+
+### 13. 吐钞能力检查接口
+POST http://localhost:8080/api/atm/device/cash-check
+Content-Type: application/json
+
+{
+  "amount": 1000
+}
+
+### 14. 余额不足验证示例
 POST http://localhost:8080/api/atm/transactions/transfer
 Content-Type: application/json
 
@@ -64,7 +81,7 @@ Content-Type: application/json
   "printReceipt": false
 }
 
-### 11. 目标账户不存在验证示例
+### 15. 目标账户不存在验证示例
 POST http://localhost:8080/api/atm/transactions/transfer
 Content-Type: application/json
 
@@ -75,7 +92,7 @@ Content-Type: application/json
   "printReceipt": false
 }
 
-### 12. 修改密码接口（成功后当前 sessionId 失效，需要重新登录）
+### 16. 修改密码接口（成功后当前 sessionId 失效，需要重新登录）
 POST http://localhost:8080/api/atm/auth/change-password
 Content-Type: application/json
 
@@ -85,7 +102,7 @@ Content-Type: application/json
   "newPassword": "654321"
 }
 
-### 13. 退出登录接口
+### 17. 退出登录接口
 POST http://localhost:8080/api/atm/auth/logout
 Content-Type: application/json
 

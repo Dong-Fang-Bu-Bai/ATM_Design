@@ -7,7 +7,7 @@ const routes = [
     path: '/',
     name: 'welcome',
     component: () => import('@/views/WelcomeView.vue'),
-    meta: { title: 'ATM 自助终端' }
+    meta: { title: '欢迎使用' }
   },
   {
     path: '/login',
@@ -73,7 +73,7 @@ const routes = [
     path: '/feature/:feature',
     name: 'feature',
     component: () => import('@/views/PlaceholderView.vue'),
-    meta: { title: '功能建设中', requiresAuth: true }
+    meta: { title: '服务入口', requiresAuth: true }
   },
   {
     path: '/:pathMatch(.*)*',
@@ -101,7 +101,7 @@ router.beforeEach((to) => {
     return { name: 'menu' }
   }
 
-  document.title = `${to.meta.title || 'ATM'} | ATM Frontend`
+  document.title = `${to.meta.title || 'ATM'} | ATM 自助终端`
   return true
 })
 

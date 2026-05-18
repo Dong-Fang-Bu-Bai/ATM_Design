@@ -41,7 +41,7 @@ onMounted(() => {
   <AtmLayout
     eyebrow="Account Balance"
     title="账户余额"
-    subtitle="该页面已接入 GET /api/atm/accounts/balance，支持重复刷新与主菜单回退。"
+    subtitle="查看当前账户人民币可用余额，并可继续查询交易流水。"
   >
     <template #display>
       <div class="display-stack">
@@ -62,7 +62,7 @@ onMounted(() => {
 
     <div class="panel-header">
       <h2>余额查询结果</h2>
-      <p>可作为第一次迭代验收页面，后续能在此基础上扩展流水与凭条。</p>
+      <p>余额信息将随账户交易实时更新。</p>
     </div>
 
     <el-card shadow="never" class="balance-card">
@@ -72,7 +72,7 @@ onMounted(() => {
       </div>
       <div class="balance-meta">
         <span>账户编号：{{ sessionStore.accountNo || '--' }}</span>
-        <span>会话 ID：{{ sessionStore.sessionId || '--' }}</span>
+        <span>最近刷新：{{ lastUpdatedAt || '等待查询' }}</span>
       </div>
     </el-card>
 

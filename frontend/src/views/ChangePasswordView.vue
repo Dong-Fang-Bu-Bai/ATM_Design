@@ -89,7 +89,7 @@ async function submit() {
   <AtmLayout
     eyebrow="Password"
     title="修改密码"
-    subtitle="接口：POST /api/atm/auth/change-password"
+    subtitle="修改银行卡登录密码。修改成功后需要重新登录。"
   >
     <template #display>
       <div class="display-stack">
@@ -102,15 +102,15 @@ async function submit() {
           <strong>{{ sessionStore.accountNo || '--' }}</strong>
         </div>
         <div class="info-card">
-          <span class="info-label">接口字段</span>
-          <strong>sessionId + oldPassword + newPassword</strong>
+          <span class="info-label">密码规则</span>
+          <strong>请输入 6 位数字密码</strong>
         </div>
       </div>
     </template>
 
     <div class="panel-header">
       <h2>修改登录密码</h2>
-      <p>前端增加确认密码校验，但接口只提交 YAML 中定义的字段。</p>
+      <p>为保障账户安全，新密码需要二次确认。</p>
     </div>
 
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top">

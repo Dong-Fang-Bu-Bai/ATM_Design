@@ -8,55 +8,55 @@ const router = useRouter()
 
 const featureMap = {
   withdraw: {
-    title: '取款功能已接入',
-    stage: '第二次迭代已交付',
-    api: 'POST /api/atm/transactions/withdraw'
+    title: '取款服务',
+    stage: '现金业务',
+    api: '请从主菜单进入正式取款页面'
   },
   deposit: {
-    title: '存款功能已接入',
-    stage: '第二次迭代已交付',
-    api: 'POST /api/atm/transactions/deposit'
+    title: '存款服务',
+    stage: '现金业务',
+    api: '请从主菜单进入正式存款页面'
   },
   transfer: {
-    title: '转账功能已接入',
-    stage: '第二次迭代已交付',
-    api: 'POST /api/atm/transactions/transfer'
+    title: '转账服务',
+    stage: '账户业务',
+    api: '请从主菜单进入正式转账页面'
   },
   'change-password': {
-    title: '修改密码功能已接入',
-    stage: '第二次迭代已交付',
-    api: 'POST /api/atm/auth/change-password'
+    title: '密码维护',
+    stage: '安全服务',
+    api: '请从主菜单进入密码维护页面'
   },
   receipt: {
-    title: '凭条与流水已接入',
-    stage: '第三次迭代已交付',
-    api: 'GET /api/atm/receipts/{transactionId}；GET /api/atm/transactions/history'
+    title: '凭条与流水',
+    stage: '交易查询',
+    api: '请从主菜单进入流水或凭条页面'
   }
 }
 
 const feature = computed(() => {
   return featureMap[route.params.feature] || {
-    title: '功能建设中',
-    stage: '后续迭代',
-    api: '待补充'
+    title: '服务入口',
+    stage: '账户服务',
+    api: '请返回主菜单选择业务'
   }
 })
 </script>
 
 <template>
   <AtmLayout
-    eyebrow="Coming Next"
+    eyebrow="Service"
     :title="feature.title"
-    subtitle="本页面用于兼容早期占位入口，正式演示请从主菜单进入对应功能。"
+    subtitle="当前入口已统一到主菜单，请返回后选择对应业务。"
   >
     <template #display>
       <div class="display-stack">
         <div class="info-card">
-          <span class="info-label">计划迭代</span>
+          <span class="info-label">服务类型</span>
           <strong>{{ feature.stage }}</strong>
         </div>
         <div class="info-card">
-          <span class="info-label">目标接口</span>
+          <span class="info-label">操作提示</span>
           <strong>{{ feature.api }}</strong>
         </div>
       </div>

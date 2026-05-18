@@ -87,7 +87,7 @@ async function submit() {
   <AtmLayout
     eyebrow="Withdraw"
     title="取款"
-    subtitle="接口：POST /api/atm/transactions/withdraw"
+    subtitle="输入取款金额并选择是否打印凭条，系统会先检查设备现金状态。"
   >
     <template #display>
       <div class="display-stack">
@@ -108,7 +108,7 @@ async function submit() {
 
     <div class="panel-header">
       <h2>取款交易</h2>
-      <p>提交字段按 YAML 统一为 sessionId、amount、printReceipt。</p>
+      <p>取款金额需为 100 的整数倍，交易完成后余额会自动更新。</p>
     </div>
 
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top">

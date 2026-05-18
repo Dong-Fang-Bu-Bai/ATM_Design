@@ -40,4 +40,14 @@ public class TransactionController {
         TransactionResponse response = transactionService.getTransactionById(transactionId);
         return Result.success(response);
     }
+
+    @GetMapping("/history")
+    public Result<TransactionHistoryResponse> getTransactionHistory(
+            @RequestParam String sessionId,
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size
+    ) {
+        TransactionHistoryResponse response = transactionService.getTransactionHistory(sessionId, page, size);
+        return Result.success(response);
+    }
 }

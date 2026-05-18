@@ -318,7 +318,7 @@ paths:
     get:
       tags: [Transaction]
       summary: 查询交易流水
-      description: 分页查询当前账户的交易流水。
+      description: 分页查询当前 sessionId 对应账户的交易流水。
       parameters:
         - $ref: '#/components/parameters/SessionId'
         - name: page
@@ -385,7 +385,7 @@ paths:
     post:
       tags: [Device]
       summary: 检查 ATM 吐钞能力
-      description: 用于在取款前判断设备现金是否充足。
+      description: 用于在取款前判断设备现金是否充足；该接口只做检查，不扣减设备现金，真实扣减发生在取款成功时。
       requestBody:
         required: true
         content:
@@ -405,6 +405,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CashCheckResponse'
+        '400':
+          description: 金额无效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
 
 components:
   parameters:
@@ -916,6 +922,7 @@ components:
           example: TX202603010001
         transactionType:
           type: string
+          enum: [WITHDRAW, DEPOSIT, TRANSFER]
           example: WITHDRAW
         amount:
           type: number
@@ -923,6 +930,7 @@ components:
           example: 1000
         transactionStatus:
           type: string
+          enum: [PENDING, SUCCESS, FAILED, CANCELLED]
           example: SUCCESS
         transactionTime:
           type: string
@@ -970,6 +978,7 @@ components:
           example: TX202603010001
         type:
           type: string
+          enum: [WITHDRAW, DEPOSIT, TRANSFER]
           example: WITHDRAW
         amount:
           type: number
@@ -1014,6 +1023,7 @@ components:
           example: 一号教学楼大厅
         status:
           type: string
+          enum: [RUNNING, MAINTENANCE, OUT_OF_SERVICE]
           example: RUNNING
         cashAvailable:
           type: number

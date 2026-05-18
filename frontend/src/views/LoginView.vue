@@ -66,25 +66,25 @@ async function submit() {
   <AtmLayout
     eyebrow="Card Authentication"
     title="插卡登录"
-    subtitle="登录成功后进入主菜单，并将当前 ATM 会话写入 Pinia 与本地存储。"
+    subtitle="请输入银行卡号与 6 位密码，完成身份验证后进入业务菜单。"
   >
     <template #display>
       <div class="display-stack">
         <div class="atm-chip-card">
           <span class="chip-card-label">Card Input</span>
           <strong>请插入银行卡并输入 6 位密码</strong>
-          <small>接口：POST /api/atm/auth/login</small>
+          <small>为保障账户安全，请勿向他人透露密码。</small>
         </div>
         <div class="hint-block">
-          <span>本轮目标</span>
-          <p>打通登录、主菜单跳转、会话保持与账户信息预取。</p>
+          <span>安全提示</span>
+          <p>连续输入错误可能导致银行卡临时锁定，请仔细核对后提交。</p>
         </div>
       </div>
     </template>
 
     <div class="panel-header">
       <h2>身份验证</h2>
-      <p>请输入银行卡号与密码。</p>
+      <p>示例卡号已保留在输入框中，便于课堂演示。</p>
     </div>
 
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top">

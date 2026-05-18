@@ -3,6 +3,9 @@ package com.atm.atmserver.service;
 import com.atm.atmserver.common.ApiException;
 import com.atm.atmserver.dto.DepositRequest;
 import com.atm.atmserver.dto.DepositResponse;
+import com.atm.atmserver.dto.DeviceStatusResponse;
+import com.atm.atmserver.dto.ReceiptResponse;
+import com.atm.atmserver.dto.TransactionHistoryResponse;
 import com.atm.atmserver.dto.TransactionResponse;
 import com.atm.atmserver.dto.TransferRequest;
 import com.atm.atmserver.dto.TransferResponse;
@@ -11,6 +14,7 @@ import com.atm.atmserver.dto.WithdrawResponse;
 import com.atm.atmserver.entity.Account;
 import com.atm.atmserver.entity.Transaction;
 import com.atm.atmserver.mapper.AccountMapper;
+import com.atm.atmserver.service.DeviceService;
 import com.atm.atmserver.util.TokenManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +42,9 @@ class TransactionServiceIntegrationTest {
     private AccountMapper accountMapper;
 
     @Autowired
+    private DeviceService deviceService;
+
+    @Autowired
     private TokenManager tokenManager;
 
     @Test
@@ -55,6 +62,7 @@ class TransactionServiceIntegrationTest {
         assertNotNull(withdrawResponse.getTransactionId());
         assertMoney("4900.00", withdrawResponse.getRemainingBalance());
         assertMoney("4900.00", accountMapper.selectByAccountNo("ACC10001").getBalance());
+        assertMoney("29900.00", deviceService.getStatus().getCashAvailable());
 
         TransactionResponse withdrawDetail = transactionService.getTransactionById(withdrawResponse.getTransactionId());
         assertEquals(Transaction.TYPE_WITHDRAW, withdrawDetail.getTransactionType());
@@ -72,6 +80,7 @@ class TransactionServiceIntegrationTest {
         assertNotNull(depositResponse.getTransactionId());
         assertMoney("5100.00", depositResponse.getUpdatedBalance());
         assertMoney("5100.00", accountMapper.selectByAccountNo("ACC10001").getBalance());
+        assertMoney("29900.00", deviceService.getStatus().getCashAvailable());
 
         TransactionResponse depositDetail = transactionService.getTransactionById(depositResponse.getTransactionId());
         assertEquals(Transaction.TYPE_DEPOSIT, depositDetail.getTransactionType());
@@ -147,6 +156,59 @@ class TransactionServiceIntegrationTest {
         assertEquals("ACC20001", detail.getTargetAccountNo());
         assertMoney("800.00", detail.getAmount());
         assertMoney("4200.00", detail.getBalanceAfter());
+    }
+
+    @Test
+    void historyAndReceiptUseCurrentSessionAccountScope() {
+        String primarySessionId = loginPrimaryCard();
+        String secondarySessionId = tokenManager.generateToken("6222020000000002");
+
+        WithdrawRequest withdrawRequest = new WithdrawRequest();
+        withdrawRequest.setSessionId(primarySessionId);
+        withdrawRequest.setAmount(new BigDecimal("100.00"));
+        withdrawRequest.setPrintReceipt(true);
+        WithdrawResponse withdrawResponse = transactionService.withdraw(withdrawRequest);
+
+        DepositRequest depositRequest = new DepositRequest();
+        depositRequest.setSessionId(primarySessionId);
+        depositRequest.setAmount(new BigDecimal("200.00"));
+        depositRequest.setPrintReceipt(false);
+        transactionService.deposit(depositRequest);
+
+        TransactionHistoryResponse history = transactionService.getTransactionHistory(primarySessionId, 1, 5);
+        assertEquals(2, history.getTotal());
+        assertEquals(2, history.getRecords().size());
+        assertEquals("DEPOSIT", history.getRecords().get(0).getTransactionType());
+        assertEquals("SUCCESS", history.getRecords().get(0).getTransactionStatus());
+
+        ReceiptResponse receipt = transactionService.getReceipt(withdrawResponse.getTransactionId(), primarySessionId);
+        assertEquals(withdrawResponse.getTransactionId(), receipt.getTransactionId());
+        assertEquals("WITHDRAW", receipt.getType());
+        assertEquals("ACC10001", receipt.getAccountNo());
+        assertMoney("100.00", receipt.getAmount());
+
+        ApiException exception = assertThrows(
+                ApiException.class,
+                () -> transactionService.getReceipt(withdrawResponse.getTransactionId(), secondarySessionId)
+        );
+        assertEquals(HttpStatus.NOT_FOUND, exception.getStatus());
+        assertEquals("凭条不存在", exception.getMessage());
+    }
+
+    @Test
+    void deviceCashCheckReflectsAvailableCash() {
+        DeviceStatusResponse status = deviceService.getStatus();
+        assertEquals("ATM001", status.getAtmCode());
+        assertEquals("RUNNING", status.getStatus());
+        assertMoney("30000.00", status.getCashAvailable());
+
+        deviceService.ensureCashAvailable(new BigDecimal("30000.00"));
+        ApiException exception = assertThrows(
+                ApiException.class,
+                () -> deviceService.ensureCashAvailable(new BigDecimal("30100.00"))
+        );
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+        assertEquals("ATM现金不足", exception.getMessage());
     }
 
     private String loginPrimaryCard() {

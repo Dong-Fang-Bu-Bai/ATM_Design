@@ -75,7 +75,7 @@ async function submit() {
   <AtmLayout
     eyebrow="Deposit"
     title="存款"
-    subtitle="接口：POST /api/atm/transactions/deposit"
+    subtitle="输入存款金额并确认交易，完成后可查看余额和凭条。"
   >
     <template #display>
       <div class="display-stack">
@@ -88,15 +88,15 @@ async function submit() {
           <strong>{{ balanceLabel }}</strong>
         </div>
         <div class="info-card">
-          <span class="info-label">接口字段</span>
-          <strong>sessionId + amount + printReceipt</strong>
+          <span class="info-label">交易提示</span>
+          <strong>请确认现金放入后再提交</strong>
         </div>
       </div>
     </template>
 
     <div class="panel-header">
       <h2>存款交易</h2>
-      <p>前端负责金额录入、凭条选择、结果展示和余额同步。</p>
+      <p>存款成功后将更新账户余额，可按需查看交易凭条。</p>
     </div>
 
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top">

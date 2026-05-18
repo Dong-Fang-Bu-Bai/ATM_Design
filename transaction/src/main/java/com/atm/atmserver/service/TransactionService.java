@@ -7,4 +7,6 @@ public interface TransactionService {
     DepositResponse deposit(DepositRequest request);
     TransferResponse transfer(TransferRequest request);
     TransactionResponse getTransactionById(String transactionId);
+    TransactionHistoryResponse getTransactionHistory(String sessionId, Integer page, Integer size);
+    ReceiptResponse getReceipt(String transactionId, String sessionId);
 }

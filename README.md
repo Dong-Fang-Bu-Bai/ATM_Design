@@ -89,6 +89,10 @@ Mock 模式不依赖后端交易接口，浏览器打开 `http://127.0.0.1:5174/
 | 存款 | `POST` | `/api/atm/transactions/deposit` |
 | 转账 | `POST` | `/api/atm/transactions/transfer` |
 | 交易详情 | `GET` | `/api/atm/transactions/{transactionId}` |
+| 交易流水 | `GET` | `/api/atm/transactions/history?sessionId=...&page=1&size=5` |
+| 交易凭条 | `GET` | `/api/atm/receipts/{transactionId}?sessionId=...` |
+| 设备状态 | `GET` | `/api/atm/device/status` |
+| 吐钞能力检查 | `POST` | `/api/atm/device/cash-check` |
 
 交易请求统一字段：
 
@@ -98,5 +102,23 @@ Mock 模式不依赖后端交易接口，浏览器打开 `http://127.0.0.1:5174/
 | 存款 | `sessionId`, `amount`, `printReceipt` |
 | 转账 | `sessionId`, `targetAccountNo`, `amount`, `printReceipt` |
 | 交易详情 | path 参数 `transactionId` |
+| 交易流水 | query 参数 `sessionId`, `page`, `size` |
+| 交易凭条 | path 参数 `transactionId`，query 参数 `sessionId` |
+| 吐钞能力检查 | `amount` |
 
 详细字段以 `openapi-atm.yaml` 和 `atm-server-auth/src/api-test.http` 为准。
+
+## 功能使用操作说明
+
+推荐演示顺序：
+
+1. 启动后端和前端，打开 `http://127.0.0.1:5173/`。
+2. 使用卡号 `6222020000000001`、密码 `123456` 登录。
+3. 在主菜单进入“设备状态”，确认设备 `ATM001` 为 `RUNNING`，并执行一次吐钞能力检查。
+4. 回到主菜单执行取款、存款或转账。取款前系统会检查设备现金是否充足，取款成功后账户余额和设备可用现金会同步减少。
+5. 交易成功后点击“查看凭条”，或进入“交易凭条”页面手动输入交易编号查询。
+6. 进入“交易流水”页面查看当前账户的分页交易记录，并从流水列表进入单笔凭条。
+7. 如需验证修改密码，先完成交易、流水和凭条演示，再执行“修改密码”。修改密码成功后当前 `sessionId` 会失效，需要使用新密码重新登录。
+8. 演示结束后点击退卡退出。
+
+后端单独验证可以使用 `atm-server-auth/src/api-test.http`。注意将登录响应中的 `sessionId` 替换到后续请求中，并将交易接口返回的 `transactionId` 替换到交易详情和凭条查询请求中。

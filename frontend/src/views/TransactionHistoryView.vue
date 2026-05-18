@@ -74,7 +74,7 @@ onMounted(() => {
   <AtmLayout
     eyebrow="Transaction History"
     title="交易流水"
-    subtitle="接口：GET /api/atm/transactions/history"
+    subtitle="按时间查看当前账户交易记录，并可进入单笔凭条。"
   >
     <template #display>
       <div class="display-stack">
@@ -87,15 +87,15 @@ onMounted(() => {
           <strong>{{ totalLabel }}</strong>
         </div>
         <div class="info-card">
-          <span class="info-label">查询口径</span>
-          <strong>sessionId + page + size</strong>
+          <span class="info-label">当前页</span>
+          <strong>第 {{ pager.page }} 页</strong>
         </div>
       </div>
     </template>
 
     <div class="panel-header">
       <h2>交易流水列表</h2>
-      <p>按当前会话账户分页查询交易记录，并支持从单笔记录进入凭条展示。</p>
+      <p>可根据交易编号继续查询和打印凭条。</p>
     </div>
 
     <el-table

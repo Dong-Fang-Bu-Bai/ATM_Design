@@ -80,7 +80,7 @@ watch(
   <AtmLayout
     eyebrow="Receipt"
     title="交易凭条"
-    subtitle="接口：GET /api/atm/receipts/{transactionId}"
+    subtitle="输入交易编号查询凭条，也可从交易流水直接进入。"
   >
     <template #display>
       <div class="display-stack">
@@ -93,15 +93,15 @@ watch(
           <strong>{{ form.transactionId || '等待输入' }}</strong>
         </div>
         <div class="info-card">
-          <span class="info-label">凭条口径</span>
-          <strong>transactionId + sessionId</strong>
+          <span class="info-label">凭条状态</span>
+          <strong>{{ receipt ? '已生成' : '等待查询' }}</strong>
         </div>
       </div>
     </template>
 
     <div class="panel-header">
       <h2>凭条查询与展示</h2>
-      <p>交易成功后可直接跳转，也支持手动输入交易编号查询。</p>
+      <p>凭条信息用于核对交易结果，必要时可打印留存。</p>
     </div>
 
     <el-form ref="formRef" :model="form" :rules="rules" label-position="top">

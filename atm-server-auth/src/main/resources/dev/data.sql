@@ -15,3 +15,6 @@ VALUES (1, '6222020000000001', '123456', 10001);
 
 INSERT INTO bank_card (id, card_no, password, account_id)
 VALUES (2, '6222020000000002', '123456', 10002);
+
+INSERT INTO atm_device (id, atm_code, location, status, cash_available, updated_at)
+VALUES (1, 'ATM001', '一号教学楼大厅', 'RUNNING', 30000.00, CURRENT_TIMESTAMP);

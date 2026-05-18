@@ -21,7 +21,7 @@ function goLogin() {
   <AtmLayout
     eyebrow="Self Service Banking"
     title="欢迎使用校园 ATM 虚拟终端"
-    subtitle="当前前端支持登录、余额查询、取款、存款、转账和修改密码，页面流程已按 ATM 自助机交互组织。"
+    subtitle="提供账户查询、现金交易、转账汇款、密码维护与凭条服务。"
   >
     <template #display>
       <div class="display-stack">
@@ -34,12 +34,12 @@ function goLogin() {
           <strong>{{ todayLabel }}</strong>
         </div>
         <div class="feature-list">
-          <span>支持功能</span>
+          <span>常用服务</span>
           <ul>
             <li>插卡登录</li>
-            <li>主菜单导航</li>
             <li>查询余额</li>
-            <li>取款、存款、转账、修改密码</li>
+            <li>取款、存款与转账</li>
+            <li>密码维护与凭条查询</li>
           </ul>
         </div>
       </div>
@@ -47,7 +47,7 @@ function goLogin() {
 
     <div class="panel-header">
       <h2>开始操作</h2>
-      <p>模拟 ATM 欢迎页，点击下方按钮进入插卡登录流程。</p>
+      <p>请先完成身份验证，再选择需要办理的账户业务。</p>
     </div>
 
     <div class="stack-actions">
@@ -55,10 +55,10 @@ function goLogin() {
         插卡并继续
       </el-button>
       <el-alert
-        title="演示账号"
+        title="服务提示"
         type="info"
         :closable="false"
-        description="若本地未接后端，请运行 npm run dev:mock 并打开 http://127.0.0.1:5174/，使用卡号 6222020000000001 / 密码 123456 体验流程。"
+        description="请确认周围环境安全，输入密码时注意遮挡键盘。"
       />
     </div>
   </AtmLayout>

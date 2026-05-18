@@ -79,7 +79,7 @@ onMounted(() => {
   <AtmLayout
     eyebrow="Device"
     title="设备状态"
-    subtitle="接口：GET /api/atm/device/status 与 POST /api/atm/device/cash-check"
+    subtitle="查看 ATM 终端运行状态、设备位置和当前可用现金。"
   >
     <template #display>
       <div class="display-stack">
@@ -100,7 +100,7 @@ onMounted(() => {
 
     <div class="panel-header">
       <h2>ATM 终端状态</h2>
-      <p>用于第三次迭代演示设备状态提示，以及取款前吐钞能力检查。</p>
+      <p>设备状态会影响取款服务，请在办理大额取款前先确认现金余量。</p>
     </div>
 
     <el-card shadow="never" class="result-card">
@@ -117,7 +117,7 @@ onMounted(() => {
     <el-card shadow="never" class="cash-check-card">
       <div class="panel-header compact-header">
         <h2>吐钞能力检查</h2>
-        <p>取款页面提交前也会调用该检查，避免设备现金不足时继续发起取款。</p>
+        <p>输入计划取款金额，提前确认设备是否能够完成吐钞。</p>
       </div>
       <el-form :model="form" label-position="top">
         <el-form-item label="计划取款金额">

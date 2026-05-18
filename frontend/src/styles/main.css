@@ -1,16 +1,18 @@
 :root {
   color-scheme: dark;
-  --bg-deep: #04141f;
-  --bg-mid: #0b2434;
-  --panel: rgba(7, 25, 36, 0.82);
-  --panel-border: rgba(118, 229, 210, 0.18);
-  --display: linear-gradient(160deg, rgba(18, 83, 92, 0.95), rgba(7, 25, 48, 0.96));
+  --bg-deep: #071015;
+  --bg-mid: #10242b;
+  --panel: rgba(9, 22, 28, 0.9);
+  --panel-strong: rgba(13, 31, 39, 0.94);
+  --panel-border: rgba(151, 222, 210, 0.18);
+  --display: linear-gradient(145deg, rgba(22, 77, 78, 0.96), rgba(7, 23, 34, 0.98));
   --text-main: #f6fffd;
-  --text-subtle: #9fb7bc;
+  --text-subtle: #a9bfc2;
   --accent: #59e0c5;
-  --accent-deep: #0c7865;
+  --accent-deep: #0a6b5d;
   --warning: #ffd166;
-  --shadow: 0 28px 60px rgba(0, 0, 0, 0.36);
+  --danger: #ff7b7b;
+  --shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
   font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -31,9 +33,10 @@ body {
   min-height: 100vh;
   color: var(--text-main);
   background:
-    radial-gradient(circle at top left, rgba(89, 224, 197, 0.18), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(255, 209, 102, 0.16), transparent 24%),
-    linear-gradient(135deg, var(--bg-deep), var(--bg-mid));
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+    linear-gradient(140deg, #071015 0%, #10242b 48%, #171d22 100%);
+  background-size: 44px 44px, 44px 44px, auto;
 }
 
 a {
@@ -52,44 +55,46 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 28px;
+  padding: 32px;
 }
 
 .atm-layout {
-  width: min(1160px, 100%);
+  width: min(1200px, 100%);
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  background: rgba(3, 12, 19, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 28px;
+  grid-template-columns: minmax(0, 0.94fr) minmax(430px, 1.06fr);
+  background: rgba(3, 10, 14, 0.54);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   overflow: hidden;
   box-shadow: var(--shadow);
   backdrop-filter: blur(16px);
 }
 
 .atm-display {
-  padding: 48px;
+  min-height: 660px;
+  padding: 52px 48px;
   background: var(--display);
   position: relative;
+  overflow: hidden;
 }
 
 .atm-display::after {
   content: "";
   position: absolute;
-  inset: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 20px;
+  inset: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   pointer-events: none;
 }
 
 .atm-eyebrow {
   display: inline-flex;
   padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.11);
   color: #d9fffa;
   font-size: 12px;
-  letter-spacing: 0.16em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -97,6 +102,7 @@ textarea {
   margin: 18px 0 12px;
   font-size: clamp(2rem, 5vw, 3.45rem);
   line-height: 1.05;
+  letter-spacing: 0;
 }
 
 .atm-subtitle {
@@ -111,22 +117,25 @@ textarea {
 }
 
 .atm-panel {
-  padding: 40px 34px 34px;
+  padding: 42px 38px 36px;
   background: var(--panel);
   border-left: 1px solid var(--panel-border);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 22px;
+  min-width: 0;
 }
 
 .panel-header h2 {
   margin: 0 0 8px;
-  font-size: 1.65rem;
+  font-size: 1.46rem;
+  line-height: 1.2;
 }
 
 .panel-header p {
   margin: 0;
   color: var(--text-subtle);
+  font-size: 0.95rem;
 }
 
 .display-stack,
@@ -141,9 +150,10 @@ textarea {
 .hint-block,
 .feature-list {
   padding: 18px 20px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .info-label,
@@ -154,7 +164,7 @@ textarea {
   margin-bottom: 8px;
   color: rgba(246, 255, 253, 0.7);
   font-size: 0.78rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
@@ -198,59 +208,84 @@ textarea {
 .menu-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .menu-button {
-  padding: 18px;
-  border: 1px solid rgba(89, 224, 197, 0.22);
-  border-radius: 18px;
+  min-height: 92px;
+  padding: 16px;
+  border: 1px solid rgba(151, 222, 210, 0.2);
+  border-radius: 8px;
   color: var(--text-main);
-  background: linear-gradient(160deg, rgba(9, 31, 43, 0.92), rgba(10, 43, 45, 0.9));
+  background: linear-gradient(160deg, rgba(14, 35, 43, 0.94), rgba(10, 47, 45, 0.9));
   text-align: left;
   cursor: pointer;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
   transition:
     transform 0.2s ease,
     border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    box-shadow 0.2s ease,
+    background 0.2s ease;
 }
 
 .menu-button:hover {
   transform: translateY(-2px);
-  border-color: rgba(89, 224, 197, 0.5);
-  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.24);
+  border-color: rgba(89, 224, 197, 0.55);
+  background: linear-gradient(160deg, rgba(19, 52, 61, 0.98), rgba(11, 76, 66, 0.92));
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.28);
 }
 
-.menu-button span,
-.menu-button small {
+.menu-button-code {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(89, 224, 197, 0.12);
+  border: 1px solid rgba(89, 224, 197, 0.22);
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.menu-button-text,
+.menu-button-text strong,
+.menu-button-text small {
   display: block;
+  min-width: 0;
 }
 
-.menu-button span {
-  margin-bottom: 8px;
+.menu-button-text strong {
+  margin-bottom: 6px;
   font-size: 1.02rem;
   font-weight: 600;
 }
 
-.menu-button small {
+.menu-button-text small {
   color: var(--text-subtle);
+  line-height: 1.35;
+  overflow-wrap: anywhere;
 }
 
 .footer-actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: flex-end;
   flex-wrap: wrap;
+  padding-top: 2px;
 }
 
 .balance-card {
   border-color: rgba(89, 224, 197, 0.18) !important;
-  background: rgba(255, 255, 255, 0.03) !important;
+  background: var(--panel-strong) !important;
 }
 
 .result-card {
   border-color: rgba(89, 224, 197, 0.18) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: var(--panel-strong) !important;
 }
 
 .result-grid {
@@ -309,7 +344,7 @@ textarea {
 
 .history-table {
   width: 100%;
-  border-radius: 14px;
+  border-radius: 8px;
   overflow: hidden;
   --el-table-bg-color: rgba(255, 255, 255, 0.03);
   --el-table-tr-bg-color: rgba(255, 255, 255, 0.03);
@@ -327,7 +362,7 @@ textarea {
 
 .receipt-paper {
   border-color: rgba(255, 209, 102, 0.28) !important;
-  background: rgba(255, 255, 255, 0.05) !important;
+  background: rgba(36, 32, 24, 0.82) !important;
 }
 
 .receipt-title {
@@ -360,7 +395,7 @@ textarea {
 
 .cash-check-card {
   border-color: rgba(89, 224, 197, 0.18) !important;
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: var(--panel-strong) !important;
 }
 
 .compact-header {
@@ -382,9 +417,37 @@ textarea {
 
 .el-input__wrapper,
 .el-textarea__inner {
-  background: rgba(255, 255, 255, 0.04) !important;
+  background: rgba(255, 255, 255, 0.055) !important;
   box-shadow: none !important;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+}
+
+.el-input__wrapper.is-focus,
+.el-textarea__inner:focus {
+  border-color: rgba(89, 224, 197, 0.56);
+}
+
+.el-button {
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.el-button--primary {
+  --el-button-bg-color: var(--accent-deep);
+  --el-button-border-color: rgba(89, 224, 197, 0.42);
+  --el-button-hover-bg-color: #0f8a75;
+  --el-button-hover-border-color: rgba(89, 224, 197, 0.72);
+  --el-button-active-bg-color: #096051;
+  --el-button-active-border-color: rgba(89, 224, 197, 0.62);
+}
+
+.el-button.is-text {
+  color: #dffbf7;
+}
+
+.el-card {
+  border-radius: 8px !important;
 }
 
 .el-input-number.full-width {
@@ -402,6 +465,10 @@ textarea {
     grid-template-columns: 1fr;
   }
 
+  .atm-display {
+    min-height: auto;
+  }
+
   .atm-panel {
     border-left: 0;
     border-top: 1px solid var(--panel-border);
@@ -411,6 +478,7 @@ textarea {
 @media (max-width: 640px) {
   .atm-shell {
     padding: 14px;
+    align-items: stretch;
   }
 
   .atm-display,
@@ -418,8 +486,16 @@ textarea {
     padding: 24px 18px;
   }
 
+  .atm-title {
+    font-size: 2rem;
+  }
+
   .menu-grid {
     grid-template-columns: 1fr;
+  }
+
+  .menu-button {
+    min-height: 84px;
   }
 
   .footer-actions {

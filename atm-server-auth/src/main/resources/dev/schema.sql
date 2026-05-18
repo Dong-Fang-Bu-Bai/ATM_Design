@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS transaction_record;
+DROP TABLE IF EXISTS atm_device;
 DROP TABLE IF EXISTS bank_card;
 DROP TABLE IF EXISTS account;
 DROP TABLE IF EXISTS customer;
@@ -42,4 +43,13 @@ CREATE TABLE transaction_record (
   description VARCHAR(255),
   created_at TIMESTAMP NOT NULL,
   completed_at TIMESTAMP
+);
+
+CREATE TABLE atm_device (
+  id BIGINT PRIMARY KEY,
+  atm_code VARCHAR(32) NOT NULL UNIQUE,
+  location VARCHAR(100) NOT NULL,
+  status VARCHAR(20) NOT NULL,
+  cash_available DECIMAL(15, 2) NOT NULL,
+  updated_at TIMESTAMP NOT NULL
 );

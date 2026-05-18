@@ -15,14 +15,14 @@ const deviceStatus = ref(null)
 const deviceLoading = ref(false)
 
 const menuItems = [
-  { label: '查询余额', route: '/balance', status: '本轮已交付' },
-  { label: '取款', route: '/withdraw', status: '第二次迭代' },
-  { label: '存款', route: '/deposit', status: '第二次迭代' },
-  { label: '转账', route: '/transfer', status: '第二次迭代' },
-  { label: '修改密码', route: '/change-password', status: '第二次迭代' },
-  { label: '交易流水', route: '/history', status: '第三次迭代' },
-  { label: '交易凭条', route: '/receipt', status: '第三次迭代' },
-  { label: '设备状态', route: '/device-status', status: '第三次迭代' }
+  { label: '查询余额', route: '/balance', code: '01', desc: '查看当前账户可用余额' },
+  { label: '取款', route: '/withdraw', code: '02', desc: '按百元整数提取现金' },
+  { label: '存款', route: '/deposit', code: '03', desc: '存入现金并更新余额' },
+  { label: '转账', route: '/transfer', code: '04', desc: '向指定账户发起转账' },
+  { label: '修改密码', route: '/change-password', code: '05', desc: '维护银行卡登录密码' },
+  { label: '交易流水', route: '/history', code: '06', desc: '查看近期账户交易记录' },
+  { label: '交易凭条', route: '/receipt', code: '07', desc: '查询或打印交易凭条' },
+  { label: '设备状态', route: '/device-status', code: '08', desc: '查看终端运行与现金状态' }
 ]
 
 const profileCardNo = computed(() => maskCardNo(sessionStore.profile?.cardNo))
@@ -89,7 +89,7 @@ onMounted(() => {
   <AtmLayout
     eyebrow="Main Menu"
     title="请选择业务类型"
-    subtitle="主菜单已接入流水、凭条和设备状态入口，可用于第三次迭代完整演示。"
+    subtitle="请选择需要办理的账户服务，操作完成后请及时退卡。"
   >
     <template #display>
       <div class="display-stack">
@@ -115,7 +115,7 @@ onMounted(() => {
 
     <div class="panel-header">
       <h2>ATM 主菜单</h2>
-      <p>余额、核心交易、流水、凭条与设备状态已具备前端演示流程。</p>
+      <p>常用服务已集中在此处，可直接进入对应业务。</p>
     </div>
 
     <div class="menu-grid">
@@ -126,8 +126,11 @@ onMounted(() => {
         type="button"
         @click="navigateTo(item.route)"
       >
-        <span>{{ item.label }}</span>
-        <small>{{ item.status }}</small>
+        <span class="menu-button-code">{{ item.code }}</span>
+        <span class="menu-button-text">
+          <strong>{{ item.label }}</strong>
+          <small>{{ item.desc }}</small>
+        </span>
       </button>
     </div>
 

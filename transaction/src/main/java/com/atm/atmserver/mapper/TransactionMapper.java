@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface TransactionMapper {
@@ -34,6 +35,15 @@ public interface TransactionMapper {
 
     @Select("SELECT * FROM transaction_record WHERE transaction_id = #{transactionId}")
     Transaction selectByTransactionId(String transactionId);
+
+    @Select("SELECT * FROM transaction_record WHERE account_id = #{accountId} " +
+            "ORDER BY created_at DESC, id DESC LIMIT #{limit} OFFSET #{offset}")
+    List<Transaction> selectByAccountIdPaged(@Param("accountId") Long accountId,
+                                             @Param("limit") int limit,
+                                             @Param("offset") int offset);
+
+    @Select("SELECT COUNT(*) FROM transaction_record WHERE account_id = #{accountId}")
+    long countByAccountId(Long accountId);
 
     @Select("SELECT COALESCE(SUM(amount), 0) FROM transaction_record WHERE card_no = #{cardNo} " +
             "AND transaction_type = #{type} AND transaction_status = 1 AND DATE(created_at) = CURDATE()")
